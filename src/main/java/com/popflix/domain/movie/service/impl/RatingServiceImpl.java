@@ -3,7 +3,7 @@ package com.popflix.domain.movie.service.impl;
 import com.popflix.domain.movie.entity.Rating;
 import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.movie.repository.RatingRepository;
-import com.popflix.domain.movie.repository.UserRepository;
+import com.popflix.domain.user.repository.UserRepository;
 import com.popflix.domain.movie.service.RatingService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
