@@ -6,6 +6,7 @@ import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,4 +40,25 @@ public class Review extends BaseSoftDeleteEntity {
 
     @OneToMany(mappedBy = "review")
     private List<Comment> comments = new ArrayList<>();
+
+    @Builder
+    public Review(String review, Movie movie, User user) {
+        this.review = review;
+        this.movie = movie;
+        this.user = user;
+        this.isHidden = false;
+    }
+
+    public void updateReview(String review) {
+        this.review = review;
+    }
+
+    public void hide() {
+        this.isHidden = true;
+    }
+
+    public void unhide() {
+        this.isHidden = false;
+    }
+
 }

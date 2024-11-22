@@ -5,6 +5,7 @@ import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +27,15 @@ public class ReviewLike extends BaseSoftDeleteEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder
+    public ReviewLike(Review review, User user) {
+        this.review = review;
+        this.user = user;
+        this.reviewLike = true;
+    }
+
+    public void toggleLike() {
+        this.reviewLike = !this.reviewLike;
+    }
 }
