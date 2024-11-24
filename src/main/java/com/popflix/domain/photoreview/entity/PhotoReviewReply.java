@@ -5,6 +5,7 @@ import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,4 +36,24 @@ public class PhotoReviewReply extends BaseSoftDeleteEntity {
 
     @OneToMany(mappedBy = "reply")
     private List<PhotoReviewReplyLike> likes = new ArrayList<>();
+
+    @Builder
+    public PhotoReviewReply(String reply, User user, PhotoReviewComment comment) {
+        this.reply = reply;
+        this.user = user;
+        this.comment = comment;
+        this.isHidden = false;
+    }
+
+    public void updateReply(String reply) {
+        this.reply = reply;
+    }
+
+    public void hide() {
+        this.isHidden = true;
+    }
+
+    public void unhide() {
+        this.isHidden = false;
+    }
 }
