@@ -1,12 +1,12 @@
 package com.popflix.domain.notification.enums;
 
-public enum NotificationType {
-    NEW_REVIEW("새 리뷰 알림"),
-    NEW_PHOTO_REVIEW("새 포토리뷰 알림");
+public enum NotificationChannel {
+    SSE("실시간 알림"),
+    EMAIL("이메일 알림");
 
     private final String description;
 
-    NotificationType(String description) {
+    NotificationChannel(String description) {
         this.description = description;
     }
 
