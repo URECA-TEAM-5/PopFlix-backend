@@ -46,7 +46,7 @@ public class MovieApiServiceImpl implements MovieApiService {
 
     @Transactional
     public void saveMovies() {
-        for (int page = 1; page <= 1; page++) {
+        for (int page = 1; page <= 50; page++) {
             String movieUrl = String.format("%s/popular?api_key=%s&page=%d&language=ko", tmdbBaseUrl, tmdbApiKey, page);
             GetTMDBDetailsResponseDto movieResponse = restTemplate.getForObject(movieUrl, GetTMDBDetailsResponseDto.class);
 
