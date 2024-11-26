@@ -1,23 +1,36 @@
 package com.popflix.domain.movie.service.impl;
 
 import com.popflix.domain.movie.dto.GetCreditsResponseDto;
+import com.popflix.domain.movie.dto.GetRecommendedMovieResponseDto;
 import com.popflix.domain.movie.dto.GetTMDBDetailsResponseDto;
 import com.popflix.domain.movie.entity.*;
 import com.popflix.domain.movie.repository.*;
 import com.popflix.domain.movie.service.MovieApiService;
 import com.popflix.domain.personality.entity.Genre;
 import com.popflix.domain.personality.repository.GenreRepository;
+import com.popflix.domain.user.repository.UserGenreRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class MovieApiServiceImpl implements MovieApiService {
+
+    private final UserGenreRepository userGenreRepository;
+
+    private final String tmdbBaseUrl = "https://api.themoviedb.org/3/movie";
 
     @Value("${tmdb.api.key}")
     private String tmdbApiKey;
@@ -34,8 +47,8 @@ public class MovieApiServiceImpl implements MovieApiService {
 
     @Transactional
     public void saveMovies() {
-        for (int page = 1; page <= 50; page++) {
-            String movieUrl = String.format("https://api.themoviedb.org/3/movie/popular?api_key=%s&page=%d&language=ko", tmdbApiKey, page);
+        for (int page = 1; page <= 1; page++) {
+            String movieUrl = String.format("%s/popular?api_key=%s&page=%d&language=ko", tmdbBaseUrl, tmdbApiKey, page);
             GetTMDBDetailsResponseDto movieResponse = restTemplate.getForObject(movieUrl, GetTMDBDetailsResponseDto.class);
 
             if (movieResponse != null && movieResponse.getResults() != null) {
@@ -124,5 +137,72 @@ public class MovieApiServiceImpl implements MovieApiService {
         }
     }
 
+    // 로그인하지 않은 유저에게 TMDB 이용 인기순으로 추천
+    @Override
+    public List<GetRecommendedMovieResponseDto> getRecommendedMovies() {
+        String url = String.format("%s/popular?api_key=%s&language=ko", tmdbBaseUrl, tmdbApiKey);
+
+        ResponseEntity<GetTMDBDetailsResponseDto> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                GetTMDBDetailsResponseDto.class
+        );
+
+        List<GetRecommendedMovieResponseDto> recommendedMovies = new ArrayList<>();
+
+        if (response.getBody() != null && response.getBody().getResults() != null) {
+            for (GetTMDBDetailsResponseDto.Movie movie : response.getBody().getResults()) {
+                Optional<Movie> localMovieOpt = movieRepository.findByTitle(movie.getTitle());
+                if (localMovieOpt.isPresent()) {
+                    Movie localMovie = localMovieOpt.get();
+                    recommendedMovies.add(new GetRecommendedMovieResponseDto(
+                            localMovie.getId(),
+                            localMovie.getPosterPath()
+                    ));
+                }
+            }
+        }
+
+        return recommendedMovies.stream()
+                .limit(10)
+                .collect(Collectors.toList());
+    }
+
+    // 로그인한 유저에게 TMDB 이용 장르 기반 영화 추천
+    @Override
+    public List<GetRecommendedMovieResponseDto> getGenreBasedMovies(Long userId) {
+        Long genreId = userGenreRepository.findGenreIdByUserId(userId);
+
+        // TMDB API 이용 -> 장르 기반 추천 영화 가져오기
+        String url = String.format("https://api.themoviedb.org/3/discover/movie?api_key=%s&with_genres=%d&language=ko", tmdbApiKey, genreId);
+
+        ResponseEntity<GetTMDBDetailsResponseDto> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                GetTMDBDetailsResponseDto.class
+        );
+
+        List<GetRecommendedMovieResponseDto> recommendedMovies = new ArrayList<>();
+
+        if (response.getBody() != null && response.getBody().getResults() != null) {
+            for (GetTMDBDetailsResponseDto.Movie movie : response.getBody().getResults()) {
+                // 로컬 DB에서 제목으로 영화 검색
+                Optional<Movie> localMovieOpt = movieRepository.findByTitle(movie.getTitle());
+                if (localMovieOpt.isPresent()) {
+                    Movie localMovie = localMovieOpt.get();
+                    recommendedMovies.add(new GetRecommendedMovieResponseDto(
+                            localMovie.getId(),
+                            localMovie.getPosterPath()
+                    ));
+                }
+            }
+        }
+
+        return recommendedMovies.stream()
+                .limit(10)
+                .collect(Collectors.toList());
+    }
 }
 

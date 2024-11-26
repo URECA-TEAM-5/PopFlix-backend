@@ -1,10 +1,7 @@
 package com.popflix.domain.user.entity;
 
 import com.popflix.common.entity.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
@@ -12,6 +9,10 @@ import lombok.Getter;
 @Getter
 public class UserGenre extends BaseTimeEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "genre_id")
     private Long genreId;
 
