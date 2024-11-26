@@ -1,6 +1,5 @@
 package com.popflix.domain.movie.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,9 +11,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class GetTMDBCreditsResponseDto {
-    private List<CastMemberDto> cast;    // 출연진 목록
-    private List<CrewMemberDto> crew;    // 감독 목록
+public class GetCreditsResponseDto {
+    private List<CastMemberDto> cast;
+    private List<CrewMemberDto> crew;
 
     @Getter
     @NoArgsConstructor

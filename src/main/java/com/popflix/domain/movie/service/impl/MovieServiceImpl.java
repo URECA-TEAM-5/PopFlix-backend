@@ -1,10 +1,9 @@
 package com.popflix.domain.movie.service.impl;
 
-import com.popflix.domain.movie.dto.GetMovieListResponseDto;
-import com.popflix.domain.movie.dto.GetMovieRatingResponseDto;
-import com.popflix.domain.movie.dto.GetRatingResponseDto;
+import com.popflix.domain.movie.dto.*;
 import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.entity.Rating;
+import com.popflix.domain.movie.repository.MovieLikeRepository;
 import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.movie.repository.RatingRepository;
 import com.popflix.domain.movie.service.MovieService;
@@ -23,6 +22,7 @@ public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
     private final RatingRepository ratingRepository;
+    private final MovieLikeRepository movieLikeRepository;
 
     // 별점 조회 및 평균 별점 계산
     @Override
@@ -50,6 +50,7 @@ public class MovieServiceImpl implements MovieService {
                 .build();
     }
 
+    // 영화 검색(키워드)
     @Override
     public Page<GetMovieListResponseDto> getMovieListByKeyword(String keyword, Pageable pageable) {
         final Page<Movie> movies = movieRepository.findByKeyword(keyword, pageable);
@@ -60,6 +61,7 @@ public class MovieServiceImpl implements MovieService {
         });
     }
 
+    // 영화 조회(장르별)
     @Override
     public Page<GetMovieListResponseDto> getMovieListByGenre(String genre, Pageable pageable) {
         final Page<Movie> movies = movieRepository.findByGenre(genre, pageable);
@@ -70,6 +72,7 @@ public class MovieServiceImpl implements MovieService {
         });
     }
 
+    // 영화 조회(전체)
     @Override
     public Page<GetMovieListResponseDto> getAllMovies(Pageable pageable) {
         final Page<Movie> movies = movieRepository.findAllMovieInfo(pageable);
@@ -83,5 +86,39 @@ public class MovieServiceImpl implements MovieService {
     private Double calculateAverageRating(Long movieId) {
         Double averageRating = ratingRepository.findAverageRatingByMovieId(movieId);
         return averageRating != null ? averageRating : 0.0;
+    }
+
+    // 상세 조회
+    public GetDetailsResponseDto getMovieDetails(Long movieId, Long userId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new MovieNotFoundException(movieId));
+
+        Double averageRating = calculateAverageRating(movie.getId());
+
+        Boolean likedByUser = (userId != null)
+                ? movieLikeRepository.existsByMovie_IdAndUser_UserIdAndIsLiked(movieId, userId, true)
+                : null;
+
+        List<SimpleDto> cast = movie.getMovieCasts()
+                .stream()
+                .map(movieCast -> SimpleDto.fromCast(movieCast.getCast()))
+                .toList();
+
+        List<SimpleDto> directors = movie.getMovieDirectors()
+                .stream()
+                .map(movieDirector -> SimpleDto.fromDirector(movieDirector.getDirector()))
+                .toList();
+
+        List<SimpleDto> genres = movie.getMovieGenres()
+                .stream()
+                .map(movieGenre -> SimpleDto.fromGenre(movieGenre.getGenre()))
+                .toList();
+
+        List<SimpleDto> reviewVideos = movie.getReviewVideos()
+                .stream()
+                .map(SimpleDto::fromReviewVideo)
+                .toList();
+
+        return GetDetailsResponseDto.from(movie, averageRating, likedByUser, cast, directors, genres, reviewVideos);
     }
 }

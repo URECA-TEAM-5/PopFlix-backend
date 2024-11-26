@@ -1,6 +1,6 @@
 package com.popflix.domain.movie.service.impl;
 
-import com.popflix.domain.movie.dto.GetTMDBCreditsResponseDto;
+import com.popflix.domain.movie.dto.GetCreditsResponseDto;
 import com.popflix.domain.movie.dto.GetTMDBDetailsResponseDto;
 import com.popflix.domain.movie.entity.*;
 import com.popflix.domain.movie.repository.*;
@@ -71,14 +71,14 @@ public class MovieApiServiceImpl implements MovieApiService {
 
                     // 출연진과 감독 정보 처리 (credits API)
                     String creditsUrl = String.format("https://api.themoviedb.org/3/movie/%d/credits?api_key=%s&language=ko", movieInfo.getId(), tmdbApiKey);
-                    GetTMDBCreditsResponseDto creditsResponse = restTemplate.getForObject(creditsUrl, GetTMDBCreditsResponseDto.class);
+                    GetCreditsResponseDto creditsResponse = restTemplate.getForObject(creditsUrl, GetCreditsResponseDto.class);
 
                     System.out.println("감독/출연진 응답 정보: " + creditsResponse);
 
                     if (creditsResponse != null) {
                         // 출연진 처리
                         if (creditsResponse.getCast() != null) {
-                            for (GetTMDBCreditsResponseDto.CastMemberDto castMemberDto : creditsResponse.getCast()) {
+                            for (GetCreditsResponseDto.CastMemberDto castMemberDto : creditsResponse.getCast()) {
                                 // Cast 객체가 데이터베이스에 존재하는지 확인
                                 Cast cast = castRepository.findByName(castMemberDto.getName()).orElse(
                                         Cast.builder()
@@ -99,7 +99,7 @@ public class MovieApiServiceImpl implements MovieApiService {
 
                         // 감독 처리
                         if (creditsResponse.getCrew() != null) {
-                            for (GetTMDBCreditsResponseDto.CrewMemberDto crewMemberDto : creditsResponse.getCrew()) {
+                            for (GetCreditsResponseDto.CrewMemberDto crewMemberDto : creditsResponse.getCrew()) {
                                 if ("Directing".equals(crewMemberDto.getDepartment()) && "Director".equals(crewMemberDto.getJob())) {
                                     // Director 객체 찾거나 생성
                                     Director director = directorRepository.findByName(crewMemberDto.getName())
