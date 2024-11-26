@@ -4,6 +4,7 @@ import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.movie.entity.MovieLike;
 import com.popflix.domain.movie.entity.Rating;
 import com.popflix.domain.movie.entity.Recommendation;
+import com.popflix.domain.photoreview.entity.PhotoReviewReplyLike;
 import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.entity.StorageLike;
 import com.popflix.domain.user.enums.AuthType;
@@ -55,18 +56,21 @@ public class User extends BaseTimeEntity {
     @Column(name = "gender")
     private Gender gender;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     private List<MovieLike> movieLikes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     private List<Rating> ratings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     private List<Recommendation> recommendations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     private List<Storage> storages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     private List<StorageLike> storageLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<PhotoReviewReplyLike> photoReviewReplyLikes = new ArrayList<>();
 }

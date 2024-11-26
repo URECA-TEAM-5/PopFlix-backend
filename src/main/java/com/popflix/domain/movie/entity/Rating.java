@@ -1,6 +1,7 @@
 package com.popflix.domain.movie.entity;
 
 
+import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Rating {
+public class Rating extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,5 +37,14 @@ public class Rating {
         this.rating = rating;
         this.user = user;
         this.movie = movie;
+    }
+
+
+    public void updateRating(Integer score) {
+        this.rating = score;
+    }
+
+    public void deleteRating() {
+        this.rating = null;
     }
 }

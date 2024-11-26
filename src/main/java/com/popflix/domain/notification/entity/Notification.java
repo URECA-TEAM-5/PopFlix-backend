@@ -1,47 +1,74 @@
+// domain.notification.entity.Notification.java
 package com.popflix.domain.notification.entity;
 
-import com.popflix.common.entity.BaseTimeEntity;
-import com.popflix.domain.movie.entity.Movie;
+import com.popflix.common.entity.BaseSoftDeleteEntity;
+import com.popflix.domain.notification.enums.NotificationChannel;
+import com.popflix.domain.notification.enums.NotificationStatus;
 import com.popflix.domain.notification.enums.NotificationType;
-import com.popflix.domain.photoreview.entity.PhotoReview;
-import com.popflix.domain.review.entity.Review;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Notification")
+@Table(name = "notification")
 @Getter
-@NoArgsConstructor
-public class Notification extends BaseTimeEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Notification extends BaseSoftDeleteEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long notificationId;
+    @Column(name = "notification_id")
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private NotificationType notificationType;
+    private NotificationType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationChannel channel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationStatus status;
 
     @Column(nullable = false)
-    private Boolean isRead;
+    private String content;
 
     @Column(nullable = false)
-    private Boolean isEmailSent;
+    private boolean isRead;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "movie_id", nullable = false)
-    private Movie movie;
+    @Builder
+    public Notification(
+            NotificationType type,
+            NotificationChannel channel,
+            String content,
+            User user
+    ) {
+        this.type = type;
+        this.channel = channel;
+        this.content = content;
+        this.status = NotificationStatus.PENDING;
+        this.isRead = false;
+        this.user = user;
+    }
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "photo_review_id", nullable = false)
-    private PhotoReview photoReview;
+    public void markAsRead() {
+        this.isRead = true;
+    }
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "review_id", nullable = false)
-    private Review review;
+    public void markAsSent() {
+        this.status = NotificationStatus.SENT;
+    }
+
+    public void markAsFailed() {
+        this.status = NotificationStatus.FAILED;
+    }
 }

@@ -1,5 +1,6 @@
 package com.popflix.domain.storage.entity;
 
+import com.popflix.common.entity.BaseSoftDeleteEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Storage {
+public class Storage extends BaseSoftDeleteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment 설정

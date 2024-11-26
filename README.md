@@ -27,9 +27,10 @@
 ## _Stacks._
 > Backend
 - Java 17, SpringBoot 3.5
-- Spring Security, JWT
+- Spring Security, JWT, Oauth2
 - Spring Data JPA
 - MySQL
+- Redis
 - JUnit 5, Mockito
 
 
@@ -63,6 +64,9 @@
 - Review CRUD
 - Comment CRUD
 - Review, Comment '좋아요' 처리
+- PhotoReview CRUD
+- Notification
+- Report
 - Test Code 작성
 
 <br />

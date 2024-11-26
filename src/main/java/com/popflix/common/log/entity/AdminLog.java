@@ -1,5 +1,6 @@
 package com.popflix.common.log.entity;
 
+import com.popflix.common.entity.BaseSoftDeleteEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,7 +10,7 @@ import lombok.Getter;
 @Entity
 @Table(name = "AdminLog")
 @Getter
-public class AdminLog {
+public class AdminLog extends BaseSoftDeleteEntity {
     @Id
     @Column(name = "admin_log_id")
     private Long adminLogId;

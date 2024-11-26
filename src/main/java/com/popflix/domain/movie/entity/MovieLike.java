@@ -1,6 +1,7 @@
 package com.popflix.domain.movie.entity;
 
-import com.popflix.domain.storage.entity.Storage;
+import com.popflix.common.entity.BaseSoftDeleteEntity;
+import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,21 +9,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MovieLike {
+public class MovieLike extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private boolean is_like;
-
-    private LocalDateTime update_at;
+    private boolean isLiked;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -33,9 +30,8 @@ public class MovieLike {
     private Movie movie;
 
     @Builder
-    public MovieLike(boolean is_like, LocalDateTime update_at, User user, Movie movie) {
-        this.is_like = is_like;
-        this.update_at = update_at;
+    public MovieLike(boolean isLiked, User user, Movie movie) {
+        this.isLiked = isLiked;
         this.user = user;
         this.movie = movie;
     }

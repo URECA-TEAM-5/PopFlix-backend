@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 public abstract class BaseTimeEntity {
-
     @CreatedDate
     @Column(name = "create_at", updatable = false)
     private LocalDateTime createAt;
@@ -22,11 +21,4 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     @Column(name = "update_at")
     private LocalDateTime updateAt;
-
-    @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
-
-    public void delete() {
-        this.isDeleted = true;
-    }
 }

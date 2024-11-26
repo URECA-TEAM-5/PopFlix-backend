@@ -1,5 +1,6 @@
 package com.popflix.domain.storage.entity;
 
+import com.popflix.common.entity.BaseSoftDeleteEntity;
 import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StorageLike {
+public class StorageLike extends BaseSoftDeleteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

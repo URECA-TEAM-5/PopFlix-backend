@@ -1,16 +1,18 @@
 package com.popflix.domain.review.entity;
 
+import com.popflix.common.entity.BaseSoftDeleteEntity;
 import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommentLike extends BaseTimeEntity {
+public class CommentLike extends BaseSoftDeleteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentLikeId;
@@ -25,4 +27,15 @@ public class CommentLike extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder
+    public CommentLike(Comment comment, User user) {
+        this.comment = comment;
+        this.user = user;
+        this.commentLike = true;
+    }
+
+    public void toggleLike() {
+        this.commentLike = !this.commentLike;
+    }
 }

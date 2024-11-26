@@ -1,10 +1,12 @@
 package com.popflix.domain.review.entity;
 
+import com.popflix.common.entity.BaseSoftDeleteEntity;
 import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Review extends BaseTimeEntity {
+public class Review extends BaseSoftDeleteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
@@ -38,4 +40,25 @@ public class Review extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "review")
     private List<Comment> comments = new ArrayList<>();
+
+    @Builder
+    public Review(String review, Movie movie, User user) {
+        this.review = review;
+        this.movie = movie;
+        this.user = user;
+        this.isHidden = false;
+    }
+
+    public void updateReview(String review) {
+        this.review = review;
+    }
+
+    public void hide() {
+        this.isHidden = true;
+    }
+
+    public void unhide() {
+        this.isHidden = false;
+    }
+
 }
