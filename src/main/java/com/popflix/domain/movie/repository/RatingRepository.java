@@ -1,8 +1,6 @@
 package com.popflix.domain.movie.repository;
 
-import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.entity.Rating;
-import com.popflix.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

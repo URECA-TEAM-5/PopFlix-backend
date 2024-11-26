@@ -17,7 +17,7 @@ import java.util.List;
 public class Storage extends BaseSoftDeleteEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment 설정
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String storageName;
