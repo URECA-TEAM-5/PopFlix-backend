@@ -151,7 +151,7 @@ public class CommentServiceImpl implements CommentService {
                 .user(convertToCommentUserInfo(comment.getUser()))
                 .createdAt(comment.getCreateAt())
                 .likeCount(commentLikeRepository.countByCommentId(comment.getCommentId()))
-                .isLiked(false)  // 현재 사용자의 좋아요 여부는 클라이언트에서 처리
+                .isLiked(false)
                 .isHidden(comment.getIsHidden())
                 .build();
     }
