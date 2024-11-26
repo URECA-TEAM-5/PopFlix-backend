@@ -1,7 +1,6 @@
 package com.popflix.domain.movie.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.popflix.domain.movie.entity.Movie;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

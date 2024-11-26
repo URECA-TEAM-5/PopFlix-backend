@@ -1,6 +1,8 @@
 package com.popflix.domain.movie.controller;
 
 import com.popflix.domain.movie.dto.AddRatingRequestDto;
+import com.popflix.domain.movie.dto.GetDetailsResponseDto;
+import com.popflix.domain.movie.dto.GetMovieListResponseDto;
 import com.popflix.domain.movie.dto.GetMovieRatingResponseDto;
 import com.popflix.domain.movie.service.MovieApiService;
 import com.popflix.domain.movie.service.MovieLikeService;
@@ -10,6 +12,8 @@ import com.popflix.global.util.ApiUtil;
 import com.popflix.global.util.ApiUtil.ApiSuccess;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -72,6 +76,39 @@ public class MovieController {
         Map<String, Boolean> likeStatus = movieLikeService.checkLikeStatus(movieId, userId);
 
         return ApiUtil.success(likeStatus);
+    }
+
+    // 영화 목록 조회
+    @GetMapping
+    public ApiSuccess<?> getMovieList(
+            @RequestParam(value = "keyword", required = false) final String keyword,
+            @RequestParam(value = "genre", required = false) final String genre,
+            final Pageable pageable) {
+
+        Page<GetMovieListResponseDto> movieList;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            // 키워드 기반 검색
+            movieList = movieService.getMovieListByKeyword(keyword, pageable);
+        } else if (genre != null && !genre.trim().isEmpty()) {
+            // 장르별 영화 검색
+            movieList = movieService.getMovieListByGenre(genre, pageable);
+        } else {
+            // 전체 영화 조회
+            movieList = movieService.getAllMovies(pageable);
+        }
+
+        return ApiUtil.success(movieList);
+    }
+
+    // 영화 상세 조회
+    @GetMapping("/{movieId}/details")
+    public ApiSuccess<GetDetailsResponseDto> getMovieDetails(
+            @PathVariable Long movieId,
+            @RequestParam(value = "userId", required = false) Long userId) {
+
+        GetDetailsResponseDto movieDetails = movieService.getMovieDetails(movieId, userId);
+        return ApiUtil.success(movieDetails);
     }
 
 }

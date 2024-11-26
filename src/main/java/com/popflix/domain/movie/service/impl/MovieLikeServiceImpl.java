@@ -4,7 +4,7 @@ import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.entity.MovieLike;
 import com.popflix.domain.movie.repository.MovieLikeRepository;
 import com.popflix.domain.movie.repository.MovieRepository;
-import com.popflix.domain.movie.repository.UserRepository;
+import com.popflix.domain.user.repository.UserRepository;
 import com.popflix.domain.movie.service.MovieLikeService;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
