@@ -1,9 +1,6 @@
 package com.popflix.domain.movie.controller;
 
-import com.popflix.domain.movie.dto.AddRatingRequestDto;
-import com.popflix.domain.movie.dto.GetDetailsResponseDto;
-import com.popflix.domain.movie.dto.GetMovieListResponseDto;
-import com.popflix.domain.movie.dto.GetMovieRatingResponseDto;
+import com.popflix.domain.movie.dto.*;
 import com.popflix.domain.movie.service.MovieApiService;
 import com.popflix.domain.movie.service.MovieLikeService;
 import com.popflix.domain.movie.service.MovieService;
@@ -16,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -110,5 +108,20 @@ public class MovieController {
         GetDetailsResponseDto movieDetails = movieService.getMovieDetails(movieId, userId);
         return ApiUtil.success(movieDetails);
     }
+
+    // 로그인하지 않은 유저에게 tmdb 이용한 인기 영화 제공
+    @GetMapping("/recommended/popular")
+    public ApiSuccess<?> getPopularMovies() {
+        List<GetRecommendedMovieResponseDto> popularMovies = movieApiService.getRecommendedMovies();
+        return ApiUtil.success(popularMovies);
+    }
+
+    // 로그인 한 유저에게 tmdb 이용한 장르 기반 추천 영화 제공
+    @GetMapping("/recommended/genre/{userId}")
+    public ApiSuccess<?> getMovieRecommendations(@PathVariable Long userId) {
+        List<GetRecommendedMovieResponseDto> genreBasedMovies = movieApiService.getGenreBasedMovies(userId);
+        return ApiUtil.success(genreBasedMovies);
+    }
+
 
 }
