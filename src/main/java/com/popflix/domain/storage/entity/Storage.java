@@ -58,4 +58,14 @@ public class Storage extends BaseSoftDeleteEntity {
     public void changeStatus() {
         this.isPublic = !this.isPublic;
     }
+
+    public void addMovie() {
+        this.movieCount++;
+    }
+
+    public void removeMovie() {
+        if (this.movieCount > 0) {
+            this.movieCount--;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.popflix.domain.storage.controller;
 
+import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.movie.service.MovieLikeService;
 import com.popflix.domain.movie.service.MovieService;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
@@ -19,7 +20,6 @@ public class StorageController {
     private final MovieLikeService movieLikeService;
 
 
-    // Todo: 2. 보관함에 영화 추가
     // Todo: 3. 보관함 목록 조회
     // Todo: 4. 보관함 상세 조회
     // Todo: 5. 보관함 삭제
@@ -39,5 +39,11 @@ public class StorageController {
         return ApiUtil.success("보관함의 공개 여부가 변경되었습니다.");
     }
 
+    // 보관함에 영화 추가
+    @PostMapping("/add-movie/{storageId}")
+    public ApiUtil.ApiSuccess<?> addMovieToStorage(@PathVariable Long storageId, @RequestBody AddMovieRequestDto movieRequest) {
+        movieService.addMovieToStorage(storageId, movieRequest);
+        return ApiUtil.success("영화가 추가되었습니다.");
+    }
 
 }
