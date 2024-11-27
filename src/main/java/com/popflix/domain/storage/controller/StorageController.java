@@ -20,22 +20,21 @@ public class StorageController {
 
     private final StorageService storageService;
     private final MovieService movieService;
-    private final MovieLikeService movieLikeService;
     private final StorageLikeService storageLikeService;
 
 
     // Todo: 5. 보관함 삭제
-    // Todo: 6. 보관함 수정(영화 추가 or 영화 삭제/ 보관함 명 수정/ 보관함 소개글 수정)
+    // Todo: 6. 보관함 수정(영화 추가 or 영화 삭제/ 보관함 명 수정/ 보관함 소개글 수정) - 프론트랑 얘기 필요
     // Todo: 7. 보관함 에 영화 추가시 중복 추가 안되게 구현
-    // Todo: 8. 보관함 좋아요
-    // Todo: 8. 보관함 좋아요 조회
     // Todo: 9. 보관함 목록/상세 조회 필드 수정
+    // Todo: 10. 보관함 목록 인기순/최신순 기능
 
 
     // 보관함 생성
     @PostMapping("/create")
     public ApiUtil.ApiSuccess<?> createStorage(@RequestBody CreateStorageRequestDto storageRequest) {
-        return ApiUtil.success(storageService.createStorage(storageRequest));
+        storageService.createStorage(storageRequest);
+        return ApiUtil.success("보관함이 생성되었습니다.");
     }
 
     // 보관함 공개 여부 스위치
@@ -53,13 +52,13 @@ public class StorageController {
     }
 
     // 보관함 목록 조회
-    @GetMapping
-    public ApiUtil.ApiSuccess<?> getStorageList() {
-        return ApiUtil.success(storageService.getStorageList());
+    @GetMapping("/{userId}")
+    public ApiUtil.ApiSuccess<?> getStorageList(@PathVariable Long userId) {
+        return ApiUtil.success(storageService.getStorageList(userId));
     }
 
     // 보관함 상세 조회
-    @GetMapping("/{storageId}")
+    @GetMapping("/{storageId}/details")
     public ApiUtil.ApiSuccess<?> getStorageDetail(@PathVariable Long storageId) {
         return ApiUtil.success(storageService.getStorageDetail(storageId));
     }
