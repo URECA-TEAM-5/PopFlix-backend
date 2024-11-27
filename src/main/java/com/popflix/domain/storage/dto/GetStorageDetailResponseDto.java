@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class GetStorageDetailResponseDto {
 
-    private GetStorageResponseDto storage;
-    private List<GetStorageMovieResponseDto> movies;
+    private GetStorageDetail2ResponseDto storage;  // 보관함 정보
+    private List<GetStorageMovieResponseDto> movies; // 영화 목록
 
-    public GetStorageDetailResponseDto(Storage storage, List<Movie> movies) {
-        this.storage = new GetStorageResponseDto(storage);
+    public GetStorageDetailResponseDto(Storage storage, List<Movie> movies, Long userId, boolean isLiked) {
+        this.storage = new GetStorageDetail2ResponseDto(storage, userId, isLiked);
+
         this.movies = movies.stream()
                 .map(GetStorageMovieResponseDto::new)
                 .collect(Collectors.toList());

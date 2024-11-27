@@ -1,7 +1,6 @@
 package com.popflix.domain.storage.controller;
 
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
-import com.popflix.domain.movie.service.MovieLikeService;
 import com.popflix.domain.movie.service.MovieService;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
 import com.popflix.domain.storage.service.StorageLikeService;
@@ -26,8 +25,9 @@ public class StorageController {
     // Todo: 5. 보관함 삭제
     // Todo: 6. 보관함 수정(영화 추가 or 영화 삭제/ 보관함 명 수정/ 보관함 소개글 수정) - 프론트랑 얘기 필요
     // Todo: 7. 보관함 에 영화 추가시 중복 추가 안되게 구현
-    // Todo: 9. 보관함 목록/상세 조회 필드 수정
+    // Todo: 9. 보관함 목록/상세 조회 필드 수정 ( 상세 조회 시 띄어진 필드 감독인지 출연진인지 프론트랑 얘기 )
     // Todo: 10. 보관함 목록 인기순/최신순 기능
+    // Todo: 11. 영화 목록/상세 조회 시에도 좋아요 여부 보이게 해야할 듯
 
 
     // 보관함 생성
@@ -59,8 +59,8 @@ public class StorageController {
 
     // 보관함 상세 조회
     @GetMapping("/{storageId}/details")
-    public ApiUtil.ApiSuccess<?> getStorageDetail(@PathVariable Long storageId) {
-        return ApiUtil.success(storageService.getStorageDetail(storageId));
+    public ApiUtil.ApiSuccess<?> getStorageDetail(@PathVariable Long storageId, @RequestParam Long userId) {
+        return ApiUtil.success(storageService.getStorageDetail(storageId, userId));
     }
 
     // 영화 좋아요 추가 & 취소

@@ -1,6 +1,5 @@
 package com.popflix.domain.storage.dto;
 
-import com.popflix.domain.storage.entity.Storage;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,9 +25,6 @@ public class GetStorageResponseDto {
         this.likeCount = likeCount;
         this.isLiked = isLiked;
         this.storageImage = storageImage;
-    }
-
-    public GetStorageResponseDto(Storage savedStorage) {
     }
 }
 

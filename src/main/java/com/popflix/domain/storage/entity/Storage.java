@@ -1,6 +1,7 @@
 package com.popflix.domain.storage.entity;
 
 import com.popflix.common.entity.BaseTimeEntity;
+import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -80,5 +82,11 @@ public class Storage extends BaseTimeEntity {
         if (this.likeCount > 0) {
             this.likeCount--;
         }
+    }
+
+    public List<Movie> getMovies() {
+        return movieStorages.stream()
+                .map(MovieStorage::getMovie)
+                .collect(Collectors.toList());
     }
 }

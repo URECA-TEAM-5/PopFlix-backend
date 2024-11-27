@@ -1,8 +1,8 @@
 package com.popflix.domain.storage.service;
 
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
-import com.popflix.domain.storage.dto.GetStorageDetailResponse;
-import com.popflix.domain.storage.dto.StorageResponseDto;
+import com.popflix.domain.storage.dto.GetStorageDetailResponseDto;
+import com.popflix.domain.storage.dto.GetStorageResponseDto;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public interface StorageService {
 
     void changeStatus(Long storageId);
 
-    List<StorageResponseDto> getStorageList(Long userId);
+    List<GetStorageResponseDto> getStorageList(Long userId);
 
-    GetStorageDetailResponse getStorageDetail(Long storageId);
+    GetStorageDetailResponseDto getStorageDetail(Long storageId, Long userId);
 }
