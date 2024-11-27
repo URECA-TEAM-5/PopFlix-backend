@@ -1,15 +1,13 @@
 package com.popflix.domain.storage.dto;
 
 import com.popflix.domain.storage.entity.Storage;
-import com.popflix.domain.user.entity.User;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class StorageResponseDto {
+public class GetStorageResponseDto {
 
     private Long id;
     private String storageName;
@@ -20,7 +18,7 @@ public class StorageResponseDto {
     private byte[] storageImage;
 
     @Builder
-    public StorageResponseDto(Long id, String storageName, String username, Long movieCount, Long likeCount, Boolean isLiked, byte[] storageImage) {
+    public GetStorageResponseDto(Long id, String storageName, String username, Long movieCount, Long likeCount, Boolean isLiked, byte[] storageImage) {
         this.id = id;
         this.storageName = storageName;
         this.username = username;
@@ -30,7 +28,7 @@ public class StorageResponseDto {
         this.storageImage = storageImage;
     }
 
-    public StorageResponseDto(Storage savedStorage) {
+    public GetStorageResponseDto(Storage savedStorage) {
     }
 }
 
