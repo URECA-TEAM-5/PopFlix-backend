@@ -1,6 +1,6 @@
 package com.popflix.domain.storage.entity;
 
-import com.popflix.common.entity.BaseSoftDeleteEntity;
+import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Storage extends BaseSoftDeleteEntity {
+public class Storage extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,9 +42,11 @@ public class Storage extends BaseSoftDeleteEntity {
     @OneToMany(mappedBy = "storage", cascade = CascadeType.PERSIST)
     private List<MovieStorage> movieStorages = new ArrayList<>();
 
+    @OneToMany(mappedBy = "storage", cascade = CascadeType.PERSIST)
+    private List<StorageLike> storageLikes = new ArrayList<>();
 
     @Builder
-    public Storage(String storageName, byte[] storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages) {
+    public Storage(String storageName, byte[] storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages, List<StorageLike> storageLikes) {
         this.storageName = storageName;
         this.storageImage = storageImage;
         this.isPublic = isPublic;
@@ -53,6 +55,7 @@ public class Storage extends BaseSoftDeleteEntity {
         this.movieCount = movieCount;
         this.user = user;
         this.movieStorages = movieStorages;
+        this.storageLikes = storageLikes;
     }
 
     public void changeStatus() {
@@ -66,6 +69,16 @@ public class Storage extends BaseSoftDeleteEntity {
     public void removeMovie() {
         if (this.movieCount > 0) {
             this.movieCount--;
+        }
+    }
+
+    public void addStorageLike() {
+        this.likeCount++;
+    }
+
+    public void removeStorageLike() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
         }
     }
 }
