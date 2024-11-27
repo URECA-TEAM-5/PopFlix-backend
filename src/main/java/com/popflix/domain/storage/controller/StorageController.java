@@ -46,4 +46,10 @@ public class StorageController {
         return ApiUtil.success("영화가 추가되었습니다.");
     }
 
+    // 보관함 목록 조회
+    @GetMapping
+    public ApiUtil.ApiSuccess<?> getStorageList() {
+        return ApiUtil.success(storageService.getStorageList());
+    }
+
 }

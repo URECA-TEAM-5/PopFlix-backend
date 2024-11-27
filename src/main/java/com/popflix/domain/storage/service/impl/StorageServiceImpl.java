@@ -3,7 +3,7 @@ package com.popflix.domain.storage.service.impl;
 import com.popflix.domain.movie.exception.UserNotFoundException;
 import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
-import com.popflix.domain.storage.dto.CreateStorageResponseDto;
+import com.popflix.domain.storage.dto.StorageResponseDto;
 import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
@@ -15,6 +15,9 @@ import com.popflix.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -29,7 +32,7 @@ public class StorageServiceImpl implements StorageService {
     // 보관함 생성
     @Transactional
     @Override
-    public CreateStorageResponseDto createStorage(CreateStorageRequestDto storageRequest) {
+    public StorageResponseDto createStorage(CreateStorageRequestDto storageRequest) {
         User user = userRepository.findById(storageRequest.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(storageRequest.getUserId()));
 
@@ -49,7 +52,7 @@ public class StorageServiceImpl implements StorageService {
 
         Storage savedStorage = storageRepository.save(storage);
 
-        return new CreateStorageResponseDto(savedStorage);
+        return new StorageResponseDto(savedStorage);
     }
 
     // 보관함 공개 여부 토글 (공개 ↔ 비공개)
@@ -62,5 +65,11 @@ public class StorageServiceImpl implements StorageService {
         storage.changeStatus();
 
         storageRepository.save(storage);
+    }
+
+    // 보관함 목록 조회
+    public List<StorageResponseDto> getStorageList() {
+        List<Storage> storages = storageRepository.findAll();
+        return storages.stream().map(StorageResponseDto::new).collect(Collectors.toList());
     }
 }
