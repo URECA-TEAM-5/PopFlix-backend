@@ -20,10 +20,9 @@ public class StorageController {
     private final MovieLikeService movieLikeService;
 
 
-    // Todo: 3. 보관함 목록 조회
-    // Todo: 4. 보관함 상세 조회
     // Todo: 5. 보관함 삭제
     // Todo: 6. 보관함 수정
+    // Todo: 7. 보관함 에 영화 추가시 중복 추가 안되게 구현
 
 
     // 보관함 생성
@@ -50,6 +49,12 @@ public class StorageController {
     @GetMapping
     public ApiUtil.ApiSuccess<?> getStorageList() {
         return ApiUtil.success(storageService.getStorageList());
+    }
+
+    // 보관함 상세 조회
+    @GetMapping("/{storageId}")
+    public ApiUtil.ApiSuccess<?> getStorageDetail(@PathVariable Long storageId) {
+        return ApiUtil.success(storageService.getStorageDetail(storageId));
     }
 
 }

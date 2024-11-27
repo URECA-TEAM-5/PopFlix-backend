@@ -1,8 +1,10 @@
 package com.popflix.domain.storage.service.impl;
 
+import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.exception.UserNotFoundException;
 import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
+import com.popflix.domain.storage.dto.GetStorageDetailResponse;
 import com.popflix.domain.storage.dto.StorageResponseDto;
 import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
@@ -12,6 +14,7 @@ import com.popflix.domain.storage.repository.StorageRepository;
 import com.popflix.domain.storage.service.StorageService;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -68,8 +71,18 @@ public class StorageServiceImpl implements StorageService {
     }
 
     // 보관함 목록 조회
+    @Override
     public List<StorageResponseDto> getStorageList() {
         List<Storage> storages = storageRepository.findAll();
         return storages.stream().map(StorageResponseDto::new).collect(Collectors.toList());
+    }
+
+    // 보관함 상세 조회
+    @Override
+    public GetStorageDetailResponse getStorageDetail(Long storageId) {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new EntityNotFoundException("보관함을 찾을 수 없습니다."));
+        List<Movie> movies = movieStorageRepository.findMoviesByStorageId(storageId);
+        return new GetStorageDetailResponse(storage, movies);
     }
 }
