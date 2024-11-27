@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CreateStorageResponseDto {
+public class StorageResponseDto {
 
     private Long id;
     private String storageName;
@@ -15,7 +15,7 @@ public class CreateStorageResponseDto {
     private Long likeCount;
     private Long movieCount;
 
-    public CreateStorageResponseDto(Storage storage) {
+    public StorageResponseDto(Storage storage) {
         this.id = storage.getId();
         this.storageName = storage.getStorageName();
         this.storageOverview = storage.getStorageOverview();
