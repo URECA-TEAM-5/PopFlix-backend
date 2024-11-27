@@ -18,7 +18,7 @@ public class StorageLike extends BaseSoftDeleteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Boolean isLike;
+    private Boolean isLiked;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -29,8 +29,8 @@ public class StorageLike extends BaseSoftDeleteEntity {
     private Storage storage;
 
     @Builder
-    public StorageLike(Boolean isLike, User user, Storage storage) {
-        this.isLike = isLike;
+    public StorageLike(Boolean isLiked, User user, Storage storage) {
+        this.isLiked = isLiked;
         this.user = user;
         this.storage = storage;
     }
