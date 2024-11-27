@@ -5,6 +5,7 @@ import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,12 +25,13 @@ public class StorageLike extends BaseSoftDeleteEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie_id", nullable = false)
-    private Movie movie;
+    @JoinColumn(name = "storage_id", nullable = false)
+    private Storage storage;
 
-    public StorageLike(Boolean isLike, User user, Movie movie) {
+    @Builder
+    public StorageLike(Boolean isLike, User user, Storage storage) {
         this.isLike = isLike;
         this.user = user;
-        this.movie = movie;
+        this.storage = storage;
     }
 }
