@@ -49,7 +49,7 @@ public class StorageServiceImpl implements StorageService {
 
         Storage savedStorage = storageRepository.save(storage);
 
-        return new CreateStorageResponseDto(savedStorage.getId(), savedStorage.getStorageName());
+        return new CreateStorageResponseDto(savedStorage);
     }
 
     // 보관함 공개 여부 토글 (공개 ↔ 비공개)
