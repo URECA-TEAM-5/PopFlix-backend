@@ -7,11 +7,11 @@ import com.popflix.domain.storage.dto.StorageResponseDto;
 import java.util.List;
 
 public interface StorageService {
-    StorageResponseDto createStorage(CreateStorageRequestDto storageRequest);
+    void createStorage(CreateStorageRequestDto storageRequest);
 
     void changeStatus(Long storageId);
 
-    List<StorageResponseDto> getStorageList();
+    List<StorageResponseDto> getStorageList(Long userId);
 
     GetStorageDetailResponse getStorageDetail(Long storageId);
 }

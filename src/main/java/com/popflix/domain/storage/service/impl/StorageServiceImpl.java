@@ -10,6 +10,7 @@ import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
+import com.popflix.domain.storage.repository.StorageLikeRepository;
 import com.popflix.domain.storage.repository.StorageRepository;
 import com.popflix.domain.storage.service.StorageService;
 import com.popflix.domain.user.entity.User;
@@ -28,14 +29,14 @@ import java.util.stream.Collectors;
 public class StorageServiceImpl implements StorageService {
 
     private final StorageRepository storageRepository;
-    private final MovieRepository movieRepository;
+    private final StorageLikeRepository storageLikeRepository;
     private final MovieStorageRepository movieStorageRepository;
     private final UserRepository userRepository;
 
     // 보관함 생성
     @Transactional
     @Override
-    public StorageResponseDto createStorage(CreateStorageRequestDto storageRequest) {
+    public void createStorage(CreateStorageRequestDto storageRequest) {
         User user = userRepository.findById(storageRequest.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(storageRequest.getUserId()));
 
@@ -53,9 +54,7 @@ public class StorageServiceImpl implements StorageService {
                 .movieCount(0L)
                 .build();
 
-        Storage savedStorage = storageRepository.save(storage);
-
-        return new StorageResponseDto(savedStorage);
+        storageRepository.save(storage);
     }
 
     // 보관함 공개 여부 토글 (공개 ↔ 비공개)
@@ -72,9 +71,20 @@ public class StorageServiceImpl implements StorageService {
 
     // 보관함 목록 조회
     @Override
-    public List<StorageResponseDto> getStorageList() {
+    public List<StorageResponseDto> getStorageList(Long userId) {
         List<Storage> storages = storageRepository.findAll();
-        return storages.stream().map(StorageResponseDto::new).collect(Collectors.toList());
+
+        return storages.stream()
+                .map(storage -> StorageResponseDto.builder()
+                        .id(storage.getId())
+                        .storageName(storage.getStorageName())
+                        .username(storage.getUser().getName())
+                        .movieCount(storage.getMovieCount())
+                        .likeCount(storage.getLikeCount())
+                        .isLiked(storageLikeRepository.existsByStorage_IdAndUser_UserIdAndIsLiked(storage.getId(), userId, true))
+                        .storageImage(storage.getStorageImage())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     // 보관함 상세 조회
