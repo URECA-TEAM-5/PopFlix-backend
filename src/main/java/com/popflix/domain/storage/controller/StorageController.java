@@ -24,8 +24,7 @@ public class StorageController {
 
     // Todo: 5. 보관함 삭제
     // Todo: 6. 보관함 수정(영화 추가 or 영화 삭제/ 보관함 명 수정/ 보관함 소개글 수정) - 프론트랑 얘기 필요
-    // Todo: 11. 영화 목록/상세 조회 시에도 좋아요 여부 보이게 해야할 듯 -> 워치리스트 끝내고 브랜치 새로 파기 - 프론트랑 얘기 필요
-    // Todo: 12. 영화 상세 페이지 -> 만든이의 다른 워치리스트도 보임
+    // Todo: 11. 영화 목록/상세 조회 시에도 좋아요 여부 보이게 해야할 듯 -> 워치리스트 끝내고 브랜치 새로 파기
 
 
     // 보관함 생성
@@ -62,6 +61,12 @@ public class StorageController {
     @GetMapping("/{storageId}/details")
     public ApiUtil.ApiSuccess<?> getStorageDetail(@PathVariable Long storageId, @RequestParam Long userId) {
         return ApiUtil.success(storageService.getStorageDetail(storageId, userId));
+    }
+
+    // 만든이의 다른 보관함 조회
+    @GetMapping("/{storageId}/others")
+    public ApiUtil.ApiSuccess<?> getOtherStoragesByCreator(@PathVariable Long storageId, @RequestParam Long userId) {
+        return ApiUtil.success(storageService.getOtherStoragesByCreator(storageId, userId));
     }
 
     // 보관함 좋아요 추가 & 취소

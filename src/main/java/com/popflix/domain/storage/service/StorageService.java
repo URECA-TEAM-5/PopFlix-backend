@@ -1,6 +1,7 @@
 package com.popflix.domain.storage.service;
 
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
+import com.popflix.domain.storage.dto.GetStorageCreatorResponseDto;
 import com.popflix.domain.storage.dto.GetStorageDetailResponseDto;
 import com.popflix.domain.storage.dto.GetStorageResponseDto;
 
@@ -14,4 +15,6 @@ public interface StorageService {
     List<GetStorageResponseDto> getStorageList(Long userId, String sort);
 
     GetStorageDetailResponseDto getStorageDetail(Long storageId, Long userId);
+
+    List<GetStorageCreatorResponseDto> getOtherStoragesByCreator(Long storageId, Long userId);
 }

@@ -3,6 +3,7 @@ package com.popflix.domain.storage.service.impl;
 import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.exception.UserNotFoundException;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
+import com.popflix.domain.storage.dto.GetStorageCreatorResponseDto;
 import com.popflix.domain.storage.dto.GetStorageDetailResponseDto;
 import com.popflix.domain.storage.dto.GetStorageResponseDto;
 import com.popflix.domain.storage.entity.Storage;
@@ -107,5 +108,27 @@ public class StorageServiceImpl implements StorageService {
         boolean isLiked = storageLikeRepository.existsByStorage_IdAndUser_UserIdAndIsLiked(storageId, userId, true);
 
         return new GetStorageDetailResponseDto(storage, movies, userId, isLiked);
+    }
+
+    // 만든 이의 다름 보관함 조회
+    @Override
+    public List<GetStorageCreatorResponseDto> getOtherStoragesByCreator(Long storageId, Long userId) {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        User creator = storage.getUser();
+
+        List<Storage> otherStorages = storageRepository.findByUserAndIdNot(creator, storageId);
+
+        return otherStorages.stream()
+                .map(otherStorage -> GetStorageCreatorResponseDto.builder()
+                        .id(otherStorage.getId())
+                        .storageName(otherStorage.getStorageName())
+                        .movieCount(otherStorage.getMovieCount())
+                        .likeCount(otherStorage.getLikeCount())
+                        .isLiked(storageLikeRepository.existsByStorage_IdAndUser_UserIdAndIsLiked(otherStorage.getId(), userId, true))
+                        .storageImage(otherStorage.getStorageImage())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
