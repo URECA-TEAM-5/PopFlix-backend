@@ -10,6 +10,7 @@ import com.popflix.domain.movie.service.MovieService;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.storage.entity.MovieStorage;
 import com.popflix.domain.storage.entity.Storage;
+import com.popflix.domain.storage.exception.DuplicateMovieException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
 import com.popflix.domain.storage.repository.StorageRepository;
@@ -139,6 +140,11 @@ public class MovieServiceImpl implements MovieService {
 
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        boolean isAlreadyAdded = movieStorageRepository.existsByStorageAndMovie(storage, movie);
+        if (isAlreadyAdded) {
+            throw new DuplicateMovieException(movie.getTitle());
+        }
 
         MovieStorage movieStorage = MovieStorage.builder()
                 .storage(storage)
