@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -13,5 +14,5 @@ public class PhotoReviewPatchDto {
     @Size(max = 500, message = "리뷰는 500자를 초과할 수 없습니다.")
     private String review;
 
-    private byte[] reviewImage;
+    private MultipartFile reviewImage;
 }

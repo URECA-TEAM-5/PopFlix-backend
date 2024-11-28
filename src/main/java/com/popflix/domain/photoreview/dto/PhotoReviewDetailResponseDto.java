@@ -11,7 +11,7 @@ import java.util.List;
 public class PhotoReviewDetailResponseDto {
     private Long reviewId;
     private String review;
-    private String reviewImageUrl;
+    private String reviewImage;
     private PhotoReviewResponseDto.MovieInfo movie;
     private PhotoReviewResponseDto.UserInfo user;
     private LocalDateTime createdAt;

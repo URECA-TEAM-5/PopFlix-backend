@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -15,7 +16,7 @@ public class PhotoReviewPostDto {
     private String review;
 
     @NotNull(message = "이미지는 필수입니다.")
-    private byte[] reviewImage;
+    private MultipartFile reviewImage;
 
     @NotNull(message = "영화 ID는 필수입니다.")
     private Long movieId;

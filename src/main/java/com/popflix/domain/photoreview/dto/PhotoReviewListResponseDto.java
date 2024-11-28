@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class PhotoReviewListResponseDto {
     private Long reviewId;
     private String review;
-    private String reviewImageUrl;
+    private String reviewImage;
     private String movieTitle;
     private LocalDateTime createdAt;
     private long likeCount;

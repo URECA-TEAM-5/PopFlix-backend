@@ -143,10 +143,6 @@ public class PhotoReviewCommentServiceImpl implements PhotoReviewCommentService 
     }
 
     private PhotoReviewCommentResponseDto convertToCommentResponse(PhotoReviewComment comment) {
-        // 문자열을 Base64로 인코딩하기 전에 byte[]로 변환
-        String profileImageBase64 = comment.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(comment.getUser().getProfileImage().getBytes()) : null;
-
         return PhotoReviewCommentResponseDto.builder()
                 .commentId(comment.getCommentId())
                 .comment(comment.getComment())
@@ -159,14 +155,10 @@ public class PhotoReviewCommentServiceImpl implements PhotoReviewCommentService 
     }
 
     private PhotoReviewCommentResponseDto.UserInfo convertToCommentUserInfo(User user) {
-        // 문자열을 Base64로 인코딩하기 전에 byte[]로 변환
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage().getBytes()) : null;
-
         return PhotoReviewCommentResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 }
