@@ -147,7 +147,7 @@ public class PhotoReviewReplyServiceImpl implements PhotoReviewReplyService {
 
     private PhotoReviewReplyResponseDto.UserInfo convertToReplyUserInfo(User user) {
         String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
+                Base64.getEncoder().encodeToString(user.getProfileImage().getBytes()) : null;
 
         return PhotoReviewReplyResponseDto.UserInfo.builder()
                 .userId(user.getUserId())

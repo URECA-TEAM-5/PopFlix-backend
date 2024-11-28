@@ -7,6 +7,7 @@ import com.popflix.domain.movie.entity.Recommendation;
 import com.popflix.domain.user.enums.AuthType;
 import com.popflix.domain.user.enums.Gender;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 @Entity
 @Table(name = "User")
 @Getter
+@Builder
 public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +35,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Lob
     @Column(name = "profile_image")
-    private byte[] profileImage; // 프로필 이미지
+    private String profileImage; // 프로필 이미지를 저장하는 필드 (S3 URL을 저장할 수 있음)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "auth_type", nullable = false)

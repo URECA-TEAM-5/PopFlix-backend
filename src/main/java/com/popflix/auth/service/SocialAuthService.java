@@ -49,6 +49,6 @@ public class SocialAuthService {
         String token = accessToken.replace("Bearer ", "");
         String email = jwtUtil.getEmailFromToken(token);
 
-        redisTemplate.delete(email);
+        redisTemplate.delete(email); // 로그아웃 시 Redis에서 해당 유저의 정보 삭제
     }
 }
