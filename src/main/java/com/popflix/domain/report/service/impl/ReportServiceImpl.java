@@ -117,7 +117,7 @@ public class ReportServiceImpl implements ReportService {
                 .targetId(report.getTargetId())
                 .reason(report.getReason())
                 .status(report.getStatus())
-                .reporter(convertToReportUserInfo(report.getReporter()))
+                .reporter(convertToResponseUserInfo(report.getReporter()))
                 .createdAt(report.getCreateAt())
                 .build();
     }
@@ -135,25 +135,19 @@ public class ReportServiceImpl implements ReportService {
                 .build();
     }
 
-    private ReportResponseDto.UserInfo convertToReportUserInfo(User user) {
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
-
-        return ReportResponseDto.UserInfo.builder()
-                .userId(user.getUserId())
-                .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
-                .build();
-    }
-
     private ReportDetailResponseDto.UserInfo convertToDetailUserInfo(User user) {
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
-
         return ReportDetailResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImageUrl(user.getProfileImage())
+                .build();
+    }
+
+    private ReportDetailResponseDto.UserInfo convertToReportUserInfo(User user) {
+        return ReportDetailResponseDto.UserInfo.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 
@@ -162,6 +156,14 @@ public class ReportServiceImpl implements ReportService {
                 .content(getTargetContent(report))
                 .contentUrl(getContentUrl(report))
                 .writer(getTargetWriter(report))
+                .build();
+    }
+
+    private ReportResponseDto.UserInfo convertToResponseUserInfo(User user) {
+        return ReportResponseDto.UserInfo.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 
@@ -226,13 +228,10 @@ public class ReportServiceImpl implements ReportService {
                     .orElseThrow(() -> new PhotoReviewReplyNotFoundException(report.getTargetId()));
         };
 
-        String profileImageBase64 = writer.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(writer.getProfileImage()) : null;
-
         return ReportDetailResponseDto.UserInfo.builder()
                 .userId(writer.getUserId())
                 .nickname(writer.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImageUrl(writer.getProfileImage())
                 .build();
     }
 
@@ -261,14 +260,18 @@ public class ReportServiceImpl implements ReportService {
         switch (report.getTargetType()) {
             case REVIEW -> reviewRepository.findActiveById(report.getTargetId())
                     .ifPresent(Review::hide);
-            case COMMENT -> commentRepository.findActiveById(report.getTargetId())
-                    .ifPresent(Comment::hide);
-            case PHOTO_REVIEW -> photoReviewRepository.findActiveById(report.getTargetId())
-                    .ifPresent(PhotoReview::hide);
-            case PHOTO_REVIEW_COMMENT -> photoReviewCommentRepository.findActiveById(report.getTargetId())
-                    .ifPresent(PhotoReviewComment::hide);
-            case PHOTO_REVIEW_REPLY -> photoReviewReplyRepository.findActiveById(report.getTargetId())
-                    .ifPresent(PhotoReviewReply::hide);
+            case COMMENT ->
+                    commentRepository.findActiveById(report.getTargetId())
+                            .ifPresent(Comment::hide);
+            case PHOTO_REVIEW ->
+                    photoReviewRepository.findActiveById(report.getTargetId())
+                            .ifPresent(PhotoReview::hide);
+            case PHOTO_REVIEW_COMMENT ->
+                    photoReviewCommentRepository.findActiveById(report.getTargetId())
+                            .ifPresent(PhotoReviewComment::hide);
+            case PHOTO_REVIEW_REPLY ->
+                    photoReviewReplyRepository.findActiveById(report.getTargetId())
+                            .ifPresent(PhotoReviewReply::hide);
         }
     }
 }

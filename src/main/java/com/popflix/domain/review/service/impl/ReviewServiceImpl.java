@@ -164,9 +164,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private ReviewResponseDto convertToReviewResponse(Review review) {
-        String profileImageBase64 = review.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(review.getUser().getProfileImage()) : null;
-
         return ReviewResponseDto.builder()
                 .reviewId(review.getReviewId())
                 .review(review.getReview())
@@ -180,9 +177,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private ReviewDetailResponseDto convertToReviewDetailResponse(Review review) {
-        String profileImageBase64 = review.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(review.getUser().getProfileImage()) : null;
-
         return ReviewDetailResponseDto.builder()
                 .reviewId(review.getReviewId())
                 .review(review.getReview())
@@ -215,13 +209,10 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private ReviewResponseDto.UserInfo convertToUserInfo(User user) {
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
-
         return ReviewResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 }

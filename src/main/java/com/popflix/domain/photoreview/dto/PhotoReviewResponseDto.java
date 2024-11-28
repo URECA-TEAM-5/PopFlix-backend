@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class PhotoReviewResponseDto {
     private Long reviewId;
     private String review;
-    private String reviewImageUrl;
+    private String reviewImage;
     private MovieInfo movie;
     private UserInfo user;
     private LocalDateTime createdAt;
@@ -31,6 +31,6 @@ public class PhotoReviewResponseDto {
     public static class UserInfo {
         private Long userId;
         private String nickname;
-        private String profileImageUrl;
+        private String profileImage;
     }
 }

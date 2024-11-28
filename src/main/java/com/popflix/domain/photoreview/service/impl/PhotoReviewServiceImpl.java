@@ -15,6 +15,7 @@ import com.popflix.domain.photoreview.repository.PhotoReviewRepository;
 import com.popflix.domain.photoreview.service.PhotoReviewService;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.repository.UserRepository;
+import com.popflix.global.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     private final PhotoReviewRepository photoReviewRepository;
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
+    private final S3Service s3Service;
     private final PhotoReviewLikeRepository photoReviewLikeRepository;
 
     @Override
@@ -43,9 +45,11 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         Movie movie = movieRepository.findById(requestDto.getMovieId())
                 .orElseThrow(() -> new MovieNotFoundException(requestDto.getMovieId()));
 
+        String imageUrl = s3Service.uploadImage(requestDto.getReviewImage());
+
         PhotoReview photoReview = PhotoReview.builder()
                 .review(requestDto.getReview())
-                .reviewImage(requestDto.getReviewImage())
+                .reviewImage(imageUrl)
                 .movie(movie)
                 .user(user)
                 .build();
@@ -93,7 +97,9 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
 
         photoReview.updateReview(requestDto.getReview());
         if (requestDto.getReviewImage() != null) {
-            photoReview.updateImage(requestDto.getReviewImage());
+            s3Service.deleteImage(photoReview.getReviewImage());
+            String newImageUrl = s3Service.uploadImage(requestDto.getReviewImage());
+            photoReview.updateImage(newImageUrl);
         }
 
         return convertToPhotoReviewResponse(photoReview);
@@ -104,6 +110,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     public void deletePhotoReview(Long reviewId, Long userId) {
         PhotoReview photoReview = findPhotoReviewById(reviewId);
         validatePhotoReviewOwner(photoReview, userId);
+        s3Service.deleteImage(photoReview.getReviewImage());
         photoReview.delete();
     }
 
@@ -124,7 +131,6 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         photoReviewLike.toggleLike();
     }
 
-    // Private helper methods
     private PhotoReview findPhotoReviewById(Long reviewId) {
         return photoReviewRepository.findActiveById(reviewId)
                 .orElseThrow(() -> new PhotoReviewNotFoundException(reviewId));
@@ -165,15 +171,11 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
                 .orElseThrow(() -> new PhotoReviewLikeNotFoundException(reviewId, userId));
     }
 
-    // Convert to DTO methods
     private PhotoReviewResponseDto convertToPhotoReviewResponse(PhotoReview photoReview) {
-        String profileImageBase64 = photoReview.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(photoReview.getUser().getProfileImage()) : null;
-
         return PhotoReviewResponseDto.builder()
                 .reviewId(photoReview.getReviewId())
                 .review(photoReview.getReview())
-                .reviewImageUrl(Base64.getEncoder().encodeToString(photoReview.getReviewImage()))
+                .reviewImage(photoReview.getReviewImage())
                 .movie(convertToMovieInfo(photoReview.getMovie()))
                 .user(convertToUserInfo(photoReview.getUser()))
                 .createdAt(photoReview.getCreateAt())
@@ -187,7 +189,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         return PhotoReviewDetailResponseDto.builder()
                 .reviewId(photoReview.getReviewId())
                 .review(photoReview.getReview())
-                .reviewImageUrl(Base64.getEncoder().encodeToString(photoReview.getReviewImage()))
+                .reviewImage(photoReview.getReviewImage())
                 .movie(convertToMovieInfo(photoReview.getMovie()))
                 .user(convertToUserInfo(photoReview.getUser()))
                 .createdAt(photoReview.getCreateAt())
@@ -201,7 +203,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         return PhotoReviewListResponseDto.builder()
                 .reviewId(photoReview.getReviewId())
                 .review(photoReview.getReview())
-                .reviewImageUrl(Base64.getEncoder().encodeToString(photoReview.getReviewImage()))
+                .reviewImage(photoReview.getReviewImage())
                 .movieTitle(photoReview.getMovie().getTitle())
                 .createdAt(photoReview.getCreateAt())
                 .likeCount(photoReviewLikeRepository.countByReviewId(photoReview.getReviewId()))
@@ -218,13 +220,10 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     }
 
     private PhotoReviewResponseDto.UserInfo convertToUserInfo(User user) {
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
-
         return PhotoReviewResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImage(user.getProfileImage())
                 .build();
     }
 }
