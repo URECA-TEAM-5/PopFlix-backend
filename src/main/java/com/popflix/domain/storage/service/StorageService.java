@@ -11,7 +11,7 @@ public interface StorageService {
 
     void changeStatus(Long storageId);
 
-    List<GetStorageResponseDto> getStorageList(Long userId);
+    List<GetStorageResponseDto> getStorageList(Long userId, String sort);
 
     GetStorageDetailResponseDto getStorageDetail(Long storageId, Long userId);
 }

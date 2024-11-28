@@ -16,6 +16,7 @@ import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,8 +70,19 @@ public class StorageServiceImpl implements StorageService {
 
     // 보관함 목록 조회
     @Override
-    public List<GetStorageResponseDto> getStorageList(Long userId) {
-        List<Storage> storages = storageRepository.findAll();
+    public List<GetStorageResponseDto> getStorageList(Long userId, String sort) {
+        // 정렬 기준에 따른 Sort 객체 생성
+        Sort sorting;
+        if ("popular".equalsIgnoreCase(sort)) {
+            sorting = Sort.by(Sort.Direction.DESC, "likeCount");
+        } else if ("newest".equalsIgnoreCase(sort)) {
+            sorting = Sort.by(Sort.Direction.DESC, "createAt");
+        } else {
+            throw new IllegalArgumentException("Invalid sort type: " + sort);
+        }
+
+        // 정렬된 보관함 목록 조회
+        List<Storage> storages = storageRepository.findAll(sorting);
 
         return storages.stream()
                 .map(storage -> GetStorageResponseDto.builder()
