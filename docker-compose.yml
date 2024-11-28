@@ -10,7 +10,7 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/popflix?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root1234
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_REDIS_HOST=redis
     depends_on:
       - db
@@ -21,7 +21,7 @@ services:
     container_name: popflix-db
     environment:
       - MYSQL_DATABASE=popflix
-      - MYSQL_ROOT_PASSWORD=root1234
+      - MYSQL_ROOT_PASSWORD=root
     ports:
       - "3308:3306"    # 외부 포트를 3308로 변경
     volumes:
