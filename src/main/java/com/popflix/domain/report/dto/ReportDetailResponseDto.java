@@ -16,23 +16,23 @@ public class ReportDetailResponseDto {
     private Long targetId;
     private ReportReason reason;
     private ReportStatus status;
-    private UserInfo reporter;
-    private TargetInfo targetContent;
+    private ReportUserInfo reporter;
+    private ReportContentInfo content;
     private LocalDateTime createdAt;
 
     @Getter
     @Builder
-    public static class UserInfo {
+    public static class ReportUserInfo {
         private Long userId;
         private String nickname;
-        private String profileImageUrl;
+        private String email;
     }
 
     @Getter
     @Builder
-    public static class TargetInfo {
+    public static class ReportContentInfo {
         private String content;
-        private String contentUrl;
-        private UserInfo writer;
+        private LocalDateTime createdAt;
+        private String url;
     }
 }
