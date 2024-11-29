@@ -20,11 +20,13 @@ public interface StorageService {
 
     List<GetStorageCreatorResponseDto> getOtherStoragesByCreator(Long storageId, Long userId);
 
-    void addMovieToStorage(Long storageId, AddMovieRequestDto requestDto, Long userId) throws AccessDeniedException;
+    void addMovieToStorage(Long storageId, AddMovieRequestDto requestDto, Long userId);
 
-    void removeMovieFromStorage(Long storageId, Long movieId, Long userId) throws AccessDeniedException;
+    void removeMovieFromStorage(Long storageId, Long movieId, Long userId);
 
-    void updateStorageName(Long storageId, String newName, Long userId) throws AccessDeniedException;
+    void updateStorageName(Long storageId, String newName, Long userId);
 
-    void updateStorageOverview(Long storageId, String newOverview, Long userId) throws AccessDeniedException;
+    void updateStorageOverview(Long storageId, String newOverview, Long userId);
+
+    void deleteStorage(Long storageId, Long userId);
 }

@@ -1,11 +1,6 @@
 package com.popflix.domain.storage.service.impl;
 
-import com.popflix.domain.movie.entity.Movie;
-import com.popflix.domain.movie.entity.MovieLike;
-import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.movie.exception.UserNotFoundException;
-import com.popflix.domain.movie.repository.MovieLikeRepository;
-import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.entity.StorageLike;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
