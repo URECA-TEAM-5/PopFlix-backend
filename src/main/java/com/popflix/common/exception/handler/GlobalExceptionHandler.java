@@ -1,5 +1,6 @@
 package com.popflix.common.exception.handler;
 
+import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateMovieException;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
@@ -41,11 +42,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateMovieException.class)
-    protected ResponseEntity<?> handleDuplicateStorageNameException(DuplicateMovieException e) {
+    protected ResponseEntity<?> handleDuplicateMovieException(DuplicateMovieException e) {
         log.error(e.getMessage(), e);
         ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 
-        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(AccessStorageDeniedException.class)
@@ -57,11 +58,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(StorageNotFoundException.class)
-    protected ResponseEntity<?> handleAccessDeniedException(StorageNotFoundException e) {
+    protected ResponseEntity<?> handleStorageNotFoundException(StorageNotFoundException e) {
         log.error(e.getMessage(), e);
-        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 
-        return ResponseEntity.status(HttpServletResponse.SC_FORBIDDEN).body(error);
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MovieNotFoundException.class)
+    protected ResponseEntity<?> handleMovieNotFoundException(MovieNotFoundException e) {
+        log.error(e.getMessage(), e);
+        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
     }
 
 

@@ -13,6 +13,7 @@ import com.popflix.domain.storage.entity.MovieStorage;
 import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.entity.StorageLike;
 import com.popflix.domain.storage.exception.AccessStorageDeniedException;
+import com.popflix.domain.storage.exception.DuplicateMovieException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
 import com.popflix.domain.storage.repository.StorageLikeRepository;
@@ -159,7 +160,7 @@ public class StorageServiceImpl implements StorageService {
                 .anyMatch(existingMovie -> existingMovie.getId().equals(movie.getId()));
 
         if (isAlreadyAdded) {
-            throw new IllegalStateException("해당 영화는 이미 보관함에 추가되어 있습니다.");
+            throw new DuplicateMovieException(movie.getTitle());
         }
 
         MovieStorage movieStorage = MovieStorage.builder()
