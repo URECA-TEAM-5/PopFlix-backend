@@ -11,8 +11,8 @@ import com.popflix.domain.storage.dto.GetStorageDetailResponseDto;
 import com.popflix.domain.storage.dto.GetStorageResponseDto;
 import com.popflix.domain.storage.entity.MovieStorage;
 import com.popflix.domain.storage.entity.Storage;
+import com.popflix.domain.storage.entity.StorageLike;
 import com.popflix.domain.storage.exception.AccessStorageDeniedException;
-import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
 import com.popflix.domain.storage.repository.StorageLikeRepository;
@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,9 +47,6 @@ public class StorageServiceImpl implements StorageService {
         User user = userRepository.findById(storageRequest.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(storageRequest.getUserId()));
 
-        if (storageRepository.existsByUserAndStorageName(user, storageRequest.getStorageName())) {
-            throw new DuplicateStorageNameException(storageRequest.getStorageName());
-        }
 
         Storage storage = Storage.builder()
                 .storageName(storageRequest.getStorageName())
@@ -180,12 +176,12 @@ public class StorageServiceImpl implements StorageService {
     // 보관함에서 영화 삭제
     @Transactional
     @Override
-    public void removeMovieFromStorage(Long storageId, Long movieId, Long userId) throws AccessDeniedException {
+    public void removeMovieFromStorage(Long storageId, Long movieId, Long userId) {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
 
         if (!storage.getUser().getUserId().equals(userId)) {
-            throw new AccessDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
         }
 
         MovieStorage movieStorage = movieStorageRepository.findByStorageAndMovieId(storage, movieId)
@@ -199,12 +195,12 @@ public class StorageServiceImpl implements StorageService {
     // 보관함 이름 수정 기능
     @Transactional
     @Override
-    public void updateStorageName(Long storageId, String newName, Long userId) throws AccessDeniedException {
+    public void updateStorageName(Long storageId, String newName, Long userId) {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
 
         if (!storage.getUser().getUserId().equals(userId)) {
-            throw new AccessDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
         }
 
         storage.changeStorageName(newName);
@@ -213,15 +209,34 @@ public class StorageServiceImpl implements StorageService {
     // 보관함 소개글 수정 기능
     @Transactional
     @Override
-    public void updateStorageOverview(Long storageId, String newOverview, Long userId) throws AccessDeniedException {
+    public void updateStorageOverview(Long storageId, String newOverview, Long userId) {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
 
         if (!storage.getUser().getUserId().equals(userId)) {
-            throw new AccessDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
         }
 
         storage.changeStorageOverview(newOverview);
+    }
+
+    @Transactional
+    @Override
+    public void deleteStorage(Long storageId, Long userId) {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        if (!storage.getUser().getUserId().equals(userId)) {
+            throw new AccessStorageDeniedException("해당 보관함을 삭제할 권한이 없습니다.");
+        }
+
+        storage.getMovieStorages().forEach(MovieStorage::delete);
+
+        storage.getStorageLikes().forEach(StorageLike::delete);
+
+        storage.delete();
+
+        storageRepository.save(storage);
     }
 
 
