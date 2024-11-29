@@ -89,4 +89,8 @@ public class Storage extends BaseTimeEntity {
                 .map(MovieStorage::getMovie)
                 .collect(Collectors.toList());
     }
+
+    public void changeStorageName(String newName) {
+        this.storageName = newName;
+    }
 }

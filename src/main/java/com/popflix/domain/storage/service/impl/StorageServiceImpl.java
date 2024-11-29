@@ -184,13 +184,27 @@ public class StorageServiceImpl implements StorageService {
             throw new AccessDeniedException("해당 보관함을 수정할 권한이 없습니다.");
         }
 
-        Movie movie = movieRepository.findById(movieId)
+        MovieStorage movieStorage = movieStorageRepository.findByStorageAndMovieId(storage, movieId)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
 
-        if (storage.getMovies().contains(movie)) {
-            storage.getMovies().remove(movie);
-            storage.removeMovie();
-        }
+        movieStorageRepository.delete(movieStorage);
+        storage.removeMovie();
+        storageRepository.save(storage);
     }
+
+    // 보관함 이름 수정 기능
+    @Transactional
+    @Override
+    public void updateStorageName(Long storageId, String newName, Long userId) throws AccessDeniedException {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        if (!storage.getUser().getUserId().equals(userId)) {
+            throw new AccessDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+        }
+
+        storage.changeStorageName(newName);
+    }
+
 
 }

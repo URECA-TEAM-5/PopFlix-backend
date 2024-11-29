@@ -23,4 +23,6 @@ public interface StorageService {
     void addMovieToStorage(Long storageId, AddMovieRequestDto requestDto, Long userId) throws AccessDeniedException;
 
     void removeMovieFromStorage(Long storageId, Long movieId, Long userId) throws AccessDeniedException;
+
+    void updateStorageName(Long storageId, String newName, Long userId) throws AccessDeniedException;
 }

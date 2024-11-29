@@ -10,4 +10,6 @@ public interface StorageRepository extends JpaRepository<Storage, Long> {
     boolean existsByUserAndStorageName(User user, String storageName);
 
     List<Storage> findByUserAndIdNot(User creator, Long storageId);
+
+    boolean existsByStorageName(String newName);
 }
