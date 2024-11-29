@@ -4,6 +4,8 @@ import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.movie.exception.UserNotFoundException;
 import com.popflix.domain.movie.repository.MovieRepository;
+import com.popflix.domain.notification.enums.NotificationType;
+import com.popflix.domain.notification.event.dto.ReviewCreatedEvent;
 import com.popflix.domain.photoreview.dto.*;
 import com.popflix.domain.photoreview.entity.PhotoReview;
 import com.popflix.domain.photoreview.entity.PhotoReviewLike;
@@ -17,6 +19,7 @@ import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.repository.UserRepository;
 import com.popflix.global.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     private final MovieRepository movieRepository;
     private final S3Service s3Service;
     private final PhotoReviewLikeRepository photoReviewLikeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -55,6 +59,9 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
                 .build();
 
         PhotoReview savedPhotoReview = photoReviewRepository.save(photoReview);
+
+        publishPhotoReviewCreatedEvent(savedPhotoReview);
+
         return convertToPhotoReviewResponse(savedPhotoReview);
     }
 
@@ -225,5 +232,23 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
                 .build();
+    }
+
+    private void publishPhotoReviewCreatedEvent(PhotoReview photoReview) {
+        ReviewCreatedEvent event = ReviewCreatedEvent.builder()
+                .reviewId(photoReview.getReviewId())
+                .movieId(photoReview.getMovie().getId())
+                .movieTitle(photoReview.getMovie().getTitle())
+                .genreIds(photoReview.getMovie().getMovieGenres().stream()
+                        .map(mg -> mg.getGenre().getId())
+                        .collect(Collectors.toList()))
+                .type(NotificationType.NEW_PHOTO_REVIEW)
+                .reviewer(photoReview.getUser())
+                .reviewerNickname(photoReview.getUser().getNickname())
+                .reviewContent(photoReview.getReview())
+                .createdAt(photoReview.getCreateAt())
+                .build();
+
+        eventPublisher.publishEvent(event);
     }
 }
