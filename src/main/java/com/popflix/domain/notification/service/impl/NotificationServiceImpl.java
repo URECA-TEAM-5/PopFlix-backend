@@ -20,11 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationServiceImpl implements NotificationService {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
@@ -53,7 +56,6 @@ public class NotificationServiceImpl implements NotificationService {
             emitterService.remove(userId);
         });
 
-        // 연결 즉시 더미 이벤트 전송 (503 에러 방지)
         try {
             emitter.send(SseEmitter.event()
                     .name("connect")
@@ -72,14 +74,12 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotificationException("사용자를 찾을 수 없습니다."));
 
-        Notification notification = Notification.builder()
+        final Notification notification = notificationRepository.save(Notification.builder()
                 .type(type)
                 .channel(NotificationChannel.SSE)
                 .content(content)
                 .user(user)
-                .build();
-
-        notificationRepository.save(notification);
+                .build());
 
         if (emitterService.exists(userId)) {
             try {
@@ -88,6 +88,7 @@ public class NotificationServiceImpl implements NotificationService {
                         emitter.send(SseEmitter.event()
                                 .name("notification")
                                 .data(NotificationResponseDto.from(notification)));
+
                         notification.markAsSent();
                     } catch (IOException e) {
                         emitterService.remove(userId);
@@ -132,21 +133,21 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<NotificationResponseDto> getUnreadNotifications(Long userId) {
-        return notificationRepository.findUnreadByUserId(userId).stream()
+        List<Notification> notifications = notificationRepository.findUnreadByUserId(userId);
+        return notifications.stream()
                 .map(NotificationResponseDto::from)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void markAsRead(Long userId, Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
+        Notification notification = notificationRepository.findActiveById(notificationId)
                 .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
         if (!notification.getUser().getUserId().equals(userId)) {
-            throw new NotificationException("해당 알림에 대한 권한이 없습니다.");
+            throw new NotificationException("알림에 대한 권한이 없습니다.");
         }
 
         notification.markAsRead();
