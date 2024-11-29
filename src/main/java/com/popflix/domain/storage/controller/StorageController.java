@@ -53,7 +53,7 @@ public class StorageController {
 
     // 영화 삭제 기능
     @DeleteMapping("/{storageId}/remove-movie/{movieId}")
-    public ApiUtil.ApiSuccess<?> removeMovieFromStorage(@PathVariable Long storageId, @PathVariable Long movieId, @RequestParam Long userId) {
+    public ApiUtil.ApiSuccess<?> removeMovieFromStorage(@PathVariable Long storageId, @PathVariable Long movieId, @RequestParam Long userId) throws AccessDeniedException {
         storageService.removeMovieFromStorage(storageId, movieId, userId);
         return ApiUtil.success("영화가 보관함에서 삭제되었습니다.");
     }
