@@ -65,6 +65,13 @@ public class StorageController {
         return ApiUtil.success("보관함 이름이 수정되었습니다.");
     }
 
+    // 보관함 소개글 수정 기능
+    @PutMapping("/update-overview/{storageId}")
+    public ApiUtil.ApiSuccess<?> updateStorageOverview(@PathVariable Long storageId, @RequestBody String newOverview, @RequestParam Long userId) throws AccessDeniedException {
+        storageService.updateStorageOverview(storageId, newOverview, userId);
+        return ApiUtil.success("보관함 소개글이 수정되었습니다.");
+    }
+
     // 보관함 목록 조회
     @GetMapping("/{userId}")
     public ApiUtil.ApiSuccess<?> getStorageList(

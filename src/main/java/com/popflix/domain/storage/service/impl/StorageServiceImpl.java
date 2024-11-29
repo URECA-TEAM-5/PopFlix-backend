@@ -206,5 +206,19 @@ public class StorageServiceImpl implements StorageService {
         storage.changeStorageName(newName);
     }
 
+    // 보관함 소개글 수정 기능
+    @Transactional
+    @Override
+    public void updateStorageOverview(Long storageId, String newOverview, Long userId) throws AccessDeniedException {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        if (!storage.getUser().getUserId().equals(userId)) {
+            throw new AccessDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+        }
+
+        storage.changeStorageOverview(newOverview);
+    }
+
 
 }

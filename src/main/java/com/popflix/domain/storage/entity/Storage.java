@@ -93,4 +93,8 @@ public class Storage extends BaseTimeEntity {
     public void changeStorageName(String newName) {
         this.storageName = newName;
     }
+
+    public void changeStorageOverview(String newOverview) {
+        this.storageOverview = newOverview;
+    }
 }

@@ -3,6 +3,7 @@ package com.popflix.common.exception.handler;
 import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateMovieException;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
+import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.global.util.ApiUtil;
 import com.popflix.global.util.ApiUtil.ApiError;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,4 +55,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(HttpServletResponse.SC_FORBIDDEN).body(error);
     }
+
+    @ExceptionHandler(StorageNotFoundException.class)
+    protected ResponseEntity<?> handleAccessDeniedException(StorageNotFoundException e) {
+        log.error(e.getMessage(), e);
+        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_FORBIDDEN).body(error);
+    }
+
+
 }
