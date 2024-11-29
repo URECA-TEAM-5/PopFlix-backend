@@ -21,4 +21,6 @@ public interface StorageService {
     List<GetStorageCreatorResponseDto> getOtherStoragesByCreator(Long storageId, Long userId);
 
     void addMovieToStorage(Long storageId, AddMovieRequestDto requestDto, Long userId) throws AccessDeniedException;
+
+    void removeMovieFromStorage(Long storageId, Long movieId, Long userId) throws AccessDeniedException;
 }

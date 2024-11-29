@@ -2,6 +2,7 @@ package com.popflix.domain.storage.service.impl;
 
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.movie.entity.Movie;
+import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.movie.exception.UserNotFoundException;
 import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
@@ -170,6 +171,26 @@ public class StorageServiceImpl implements StorageService {
 
         storage.addMovie();
         storageRepository.save(storage);
+    }
+
+    // 보관함에서 영화 삭제
+    @Transactional
+    @Override
+    public void removeMovieFromStorage(Long storageId, Long movieId, Long userId) throws AccessDeniedException {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        if (!storage.getUser().getUserId().equals(userId)) {
+            throw new AccessDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+        }
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new MovieNotFoundException(movieId));
+
+        if (storage.getMovies().contains(movie)) {
+            storage.getMovies().remove(movie);
+            storage.removeMovie();
+        }
     }
 
 }

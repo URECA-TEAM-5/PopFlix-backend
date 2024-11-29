@@ -51,6 +51,13 @@ public class StorageController {
         return ApiUtil.success("영화가 보관함에 추가되었습니다.");
     }
 
+    // 영화 삭제 기능
+    @DeleteMapping("/{storageId}/remove-movie/{movieId}")
+    public ApiUtil.ApiSuccess<?> removeMovieFromStorage(@PathVariable Long storageId, @PathVariable Long movieId, @RequestParam Long userId) {
+        storageService.removeMovieFromStorage(storageId, movieId, userId);
+        return ApiUtil.success("영화가 보관함에서 삭제되었습니다.");
+    }
+
     // 보관함 목록 조회
     @GetMapping("/{userId}")
     public ApiUtil.ApiSuccess<?> getStorageList(
