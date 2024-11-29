@@ -1,6 +1,6 @@
 package com.popflix.domain.storage.entity;
 
-import com.popflix.common.entity.BaseSoftDeleteEntity;
+import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.movie.entity.Movie;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MovieStorage extends BaseSoftDeleteEntity {
+public class MovieStorage extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
