@@ -1,12 +1,16 @@
 package com.popflix.domain.storage.service.impl;
 
+import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.exception.UserNotFoundException;
+import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
 import com.popflix.domain.storage.dto.GetStorageCreatorResponseDto;
 import com.popflix.domain.storage.dto.GetStorageDetailResponseDto;
 import com.popflix.domain.storage.dto.GetStorageResponseDto;
+import com.popflix.domain.storage.entity.MovieStorage;
 import com.popflix.domain.storage.entity.Storage;
+import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,8 +35,10 @@ public class StorageServiceImpl implements StorageService {
 
     private final StorageRepository storageRepository;
     private final StorageLikeRepository storageLikeRepository;
-    private final MovieStorageRepository movieStorageRepository;
     private final UserRepository userRepository;
+    private final MovieRepository movieRepository;
+    private final MovieStorageRepository movieStorageRepository;
+
 
     // 보관함 생성
     @Transactional
@@ -131,4 +138,38 @@ public class StorageServiceImpl implements StorageService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
+    // 보관함에 영화 추가
+    @Transactional
+    @Override
+    public void addMovieToStorage(Long storageId, AddMovieRequestDto requestDto, Long userId) {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 보관함입니다."));
+
+        if (!storage.getUser().getUserId().equals(userId)) {
+            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+        }
+
+        Movie movie = movieRepository.findById(requestDto.getMovieId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
+
+        boolean isAlreadyAdded = storage.getMovies().stream()
+                .anyMatch(existingMovie -> existingMovie.getId().equals(movie.getId()));
+
+        if (isAlreadyAdded) {
+            throw new IllegalStateException("해당 영화는 이미 보관함에 추가되어 있습니다.");
+        }
+
+        MovieStorage movieStorage = MovieStorage.builder()
+                .storage(storage)
+                .movie(movie)
+                .build();
+
+        movieStorageRepository.save(movieStorage);
+
+        storage.addMovie();
+        storageRepository.save(storage);
+    }
+
 }

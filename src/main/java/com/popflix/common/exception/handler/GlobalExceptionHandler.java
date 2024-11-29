@@ -1,5 +1,6 @@
 package com.popflix.common.exception.handler;
 
+import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateMovieException;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.global.util.ApiUtil;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.nio.file.AccessDeniedException;
 
 
 @Slf4j
@@ -42,5 +45,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 
         return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(AccessStorageDeniedException.class)
+    protected ResponseEntity<?> handleAccessDeniedException(AccessStorageDeniedException e) {
+        log.error(e.getMessage(), e);
+        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+
+        return ResponseEntity.status(HttpServletResponse.SC_FORBIDDEN).body(error);
     }
 }

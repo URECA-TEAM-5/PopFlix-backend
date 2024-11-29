@@ -8,13 +8,8 @@ import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.movie.repository.RatingRepository;
 import com.popflix.domain.movie.service.MovieService;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
-import com.popflix.domain.storage.entity.MovieStorage;
-import com.popflix.domain.storage.entity.Storage;
-import com.popflix.domain.storage.exception.DuplicateMovieException;
-import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
 import com.popflix.domain.storage.repository.StorageRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +25,6 @@ public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
     private final RatingRepository ratingRepository;
     private final MovieLikeRepository movieLikeRepository;
-    private final StorageRepository storageRepository;
-    private final MovieStorageRepository movieStorageRepository;
 
     // 별점 조회 및 평균 별점 계산
     @Override
@@ -129,31 +122,5 @@ public class MovieServiceImpl implements MovieService {
                 .toList();
 
         return GetDetailsResponseDto.from(movie, averageRating, likedByUser, cast, directors, genres, reviewVideos);
-    }
-
-    // 보관함에 영화 추가 기능
-    @Transactional
-    @Override
-    public void addMovieToStorage(Long storageId, AddMovieRequestDto movieRequest) {
-        Movie movie = movieRepository.findById(movieRequest.getMovieId())
-                .orElseThrow(() -> new MovieNotFoundException(movieRequest.getMovieId()));
-
-        Storage storage = storageRepository.findById(storageId)
-                .orElseThrow(() -> new StorageNotFoundException(storageId));
-
-        boolean isAlreadyAdded = movieStorageRepository.existsByStorageAndMovie(storage, movie);
-        if (isAlreadyAdded) {
-            throw new DuplicateMovieException(movie.getTitle());
-        }
-
-        MovieStorage movieStorage = MovieStorage.builder()
-                .storage(storage)
-                .movie(movie)
-                .build();
-
-        movieStorageRepository.save(movieStorage);
-
-        storage.addMovie();
-        storageRepository.save(storage);
     }
 }

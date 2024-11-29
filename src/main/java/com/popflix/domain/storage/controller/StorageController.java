@@ -9,6 +9,7 @@ import com.popflix.global.util.ApiUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Map;
 
 
@@ -23,7 +24,8 @@ public class StorageController {
 
 
     // Todo: 5. 보관함 삭제
-    // Todo: 6. 보관함 수정(영화 추가 or 영화 삭제/ 보관함 명 수정/ 보관함 소개글 수정) - 프론트랑 얘기 필요
+    // Todo: 6. 보관함 수정(영화 추가 or 영화 삭제/ 보관함 명 수정/ 보관함 소개글 수정)
+    // Todo: 12. 워치리스트 공유 기능 -> 배포하고 뭐 도메인 어쩌구 설정해야함.
     // Todo: 11. 영화 목록/상세 조회 시에도 좋아요 여부 보이게 해야할 듯 -> 워치리스트 끝내고 브랜치 새로 파기
 
 
@@ -43,9 +45,10 @@ public class StorageController {
 
     // 보관함에 영화 추가
     @PostMapping("/add-movie/{storageId}")
-    public ApiUtil.ApiSuccess<?> addMovieToStorage(@PathVariable Long storageId, @RequestBody AddMovieRequestDto movieRequest) {
-        movieService.addMovieToStorage(storageId, movieRequest);
-        return ApiUtil.success("영화가 추가되었습니다.");
+    public ApiUtil.ApiSuccess<?> addMovie(
+            @PathVariable Long storageId, @RequestBody AddMovieRequestDto requestDto, @RequestParam Long userId) throws AccessDeniedException {
+        storageService.addMovieToStorage(storageId, requestDto, userId);
+        return ApiUtil.success("영화가 보관함에 추가되었습니다.");
     }
 
     // 보관함 목록 조회

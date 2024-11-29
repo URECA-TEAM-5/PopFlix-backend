@@ -17,6 +17,4 @@ public interface MovieService {
     Page<GetMovieListResponseDto> getAllMovies(Pageable pageable);
 
     GetDetailsResponseDto getMovieDetails(Long movieId, Long userId);
-
-    void addMovieToStorage(Long storageId, AddMovieRequestDto movieRequest);
 }
