@@ -38,8 +38,8 @@ public class StorageController {
 
     // 보관함 공개 여부 스위치
     @PatchMapping("/{storageId}/switch")
-    public ApiUtil.ApiSuccess<?> switchIsPublic(@PathVariable Long storageId) {
-        storageService.changeStatus(storageId);
+    public ApiUtil.ApiSuccess<?> switchIsPublic(@PathVariable Long storageId, @RequestParam Long userId) {
+        storageService.changeStatus(storageId, userId);
         return ApiUtil.success("보관함의 공개 여부가 변경되었습니다.");
     }
 

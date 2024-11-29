@@ -68,9 +68,13 @@ public class StorageServiceImpl implements StorageService {
     // 보관함 공개 여부 토글 (공개 ↔ 비공개)
     @Transactional
     @Override
-    public void changeStatus(Long storageId) {
+    public void changeStatus(Long storageId, Long userId) {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        if (!storage.getUser().getUserId().equals(userId)) {
+            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+        }
 
         storage.changeStatus();
 

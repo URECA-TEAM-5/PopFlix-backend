@@ -12,7 +12,7 @@ import java.util.List;
 public interface StorageService {
     void createStorage(CreateStorageRequestDto storageRequest);
 
-    void changeStatus(Long storageId);
+    void changeStatus(Long storageId, Long userId);
 
     List<GetStorageResponseDto> getStorageList(Long userId, String sort);
 
