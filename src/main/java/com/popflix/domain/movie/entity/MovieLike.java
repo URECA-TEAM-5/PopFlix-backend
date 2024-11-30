@@ -1,6 +1,5 @@
 package com.popflix.domain.movie.entity;
 
-import com.popflix.common.entity.BaseSoftDeleteEntity;
 import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.user.entity.User;
 import jakarta.persistence.*;

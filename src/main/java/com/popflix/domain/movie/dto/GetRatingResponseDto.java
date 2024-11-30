@@ -1,6 +1,5 @@
 package com.popflix.domain.movie.dto;
 
-import com.popflix.domain.movie.entity.Rating;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
