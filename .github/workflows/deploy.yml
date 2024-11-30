@@ -7,7 +7,7 @@ on:
     branches: [ "main", "dev" ]
 
 env:
-  AWS_REGION: ap-northeast-2
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: my-production-repository
   ECS_SERVICE: my-production-service
   ECS_CLUSTER: my-production-cluster1
