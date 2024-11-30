@@ -54,34 +54,37 @@ public class MovieServiceImpl implements MovieService {
 
     // 영화 검색(키워드)
     @Override
-    public Page<GetMovieListResponseDto> getMovieListByKeyword(String keyword, Pageable pageable) {
-        final Page<Movie> movies = movieRepository.findByKeyword(keyword, pageable);
+    public Page<GetMovieListResponseDto> getMovieListByKeyword(String keyword, Pageable pageable, Long userId) {
+        Page<Movie> movies = movieRepository.findByKeyword(keyword, pageable);
 
         return movies.map(movie -> {
             Double averageRating = calculateAverageRating(movie.getId());
-            return GetMovieListResponseDto.from(movie, averageRating);
+            Boolean isLiked = getIsLiked(userId, movie.getId());
+            return GetMovieListResponseDto.from(movie, averageRating, isLiked);
         });
     }
 
     // 영화 조회(장르별)
     @Override
-    public Page<GetMovieListResponseDto> getMovieListByGenre(String genre, Pageable pageable) {
-        final Page<Movie> movies = movieRepository.findByGenre(genre, pageable);
+    public Page<GetMovieListResponseDto> getMovieListByGenre(String genre, Pageable pageable, Long userId) {
+        Page<Movie> movies = movieRepository.findByGenre(genre, pageable);
 
         return movies.map(movie -> {
             Double averageRating = calculateAverageRating(movie.getId());
-            return GetMovieListResponseDto.from(movie, averageRating);
+            Boolean isLiked = getIsLiked(userId, movie.getId());
+            return GetMovieListResponseDto.from(movie, averageRating, isLiked);
         });
     }
 
     // 영화 조회(전체)
     @Override
-    public Page<GetMovieListResponseDto> getAllMovies(Pageable pageable) {
-        final Page<Movie> movies = movieRepository.findAllMovieInfo(pageable);
+    public Page<GetMovieListResponseDto> getAllMovies(Pageable pageable, Long userId) {
+        Page<Movie> movies = movieRepository.findAllMovieInfo(pageable);
 
         return movies.map(movie -> {
             Double averageRating = calculateAverageRating(movie.getId());
-            return GetMovieListResponseDto.from(movie, averageRating);
+            Boolean isLiked = getIsLiked(userId, movie.getId());
+            return GetMovieListResponseDto.from(movie, averageRating, isLiked);
         });
     }
 
@@ -90,16 +93,14 @@ public class MovieServiceImpl implements MovieService {
         return averageRating != null ? averageRating : 0.0;
     }
 
-    // 상세 조회
+    // 상세 조회 - 좋아요 상태 추가
+    @Override
     public GetDetailsResponseDto getMovieDetails(Long movieId, Long userId) {
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
 
         Double averageRating = calculateAverageRating(movie.getId());
-
-        Boolean likedByUser = (userId != null)
-                ? movieLikeRepository.existsByMovie_IdAndUser_UserIdAndIsLiked(movieId, userId, true)
-                : null;
+        Boolean likedByUser = getIsLiked(userId, movie.getId());
 
         List<SimpleDto> cast = movie.getMovieCasts()
                 .stream()
@@ -122,5 +123,13 @@ public class MovieServiceImpl implements MovieService {
                 .toList();
 
         return GetDetailsResponseDto.from(movie, averageRating, likedByUser, cast, directors, genres, reviewVideos);
+    }
+
+    // 좋아요 여부 확인
+    private Boolean getIsLiked(Long userId, Long movieId) {
+        if (userId == null) {
+            return false;
+        }
+        return movieLikeRepository.existsByMovie_IdAndUser_UserIdAndIsLiked(movieId, userId, true);
     }
 }
