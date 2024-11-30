@@ -1,10 +1,7 @@
 package com.popflix.domain.storage.service;
 
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
-import com.popflix.domain.storage.dto.CreateStorageRequestDto;
-import com.popflix.domain.storage.dto.GetStorageCreatorResponseDto;
-import com.popflix.domain.storage.dto.GetStorageDetailResponseDto;
-import com.popflix.domain.storage.dto.GetStorageResponseDto;
+import com.popflix.domain.storage.dto.*;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
@@ -24,9 +21,7 @@ public interface StorageService {
 
     void removeMovieFromStorage(Long storageId, Long movieId, Long userId);
 
-    void updateStorageName(Long storageId, String newName, Long userId);
-
-    void updateStorageOverview(Long storageId, String newOverview, Long userId);
-
     void deleteStorage(Long storageId, Long userId);
+
+    void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, Long userId);
 }

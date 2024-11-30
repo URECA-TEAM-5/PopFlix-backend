@@ -2,6 +2,7 @@ package com.popflix.domain.storage.controller;
 
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
+import com.popflix.domain.storage.dto.UpdateStorageRequestDto;
 import com.popflix.domain.storage.service.StorageLikeService;
 import com.popflix.domain.storage.service.StorageService;
 import com.popflix.global.util.ApiUtil;
@@ -53,18 +54,14 @@ public class StorageController {
         return ApiUtil.success("영화가 보관함에서 삭제되었습니다.");
     }
 
-    // 보관함 이름 수정 기능
-    @PutMapping("/update-name/{storageId}")
-    public ApiUtil.ApiSuccess<?> updateStorageName(@PathVariable Long storageId, @RequestBody String newName, @RequestParam Long userId)  {
-        storageService.updateStorageName(storageId, newName, userId);
-        return ApiUtil.success("보관함 이름이 수정되었습니다.");
-    }
-
-    // 보관함 소개글 수정 기능
-    @PutMapping("/update-overview/{storageId}")
-    public ApiUtil.ApiSuccess<?> updateStorageOverview(@PathVariable Long storageId, @RequestBody String newOverview, @RequestParam Long userId)  {
-        storageService.updateStorageOverview(storageId, newOverview, userId);
-        return ApiUtil.success("보관함 소개글이 수정되었습니다.");
+    // 보관함 이름 및 소개글 수정 기능
+    @PutMapping("/update/{storageId}")
+    public ApiUtil.ApiSuccess<?> updateStorageDetails(
+            @PathVariable Long storageId,
+            @RequestBody UpdateStorageRequestDto requestDto,
+            @RequestParam Long userId) {
+        storageService.updateStorageDetails(storageId, requestDto, userId);
+        return ApiUtil.success("보관함 정보가 수정되었습니다.");
     }
 
     // 보관함 목록 조회

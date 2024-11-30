@@ -5,15 +5,13 @@ import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.movie.exception.UserNotFoundException;
 import com.popflix.domain.movie.repository.MovieRepository;
-import com.popflix.domain.storage.dto.CreateStorageRequestDto;
-import com.popflix.domain.storage.dto.GetStorageCreatorResponseDto;
-import com.popflix.domain.storage.dto.GetStorageDetailResponseDto;
-import com.popflix.domain.storage.dto.GetStorageResponseDto;
+import com.popflix.domain.storage.dto.*;
 import com.popflix.domain.storage.entity.MovieStorage;
 import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.entity.StorageLike;
 import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateMovieException;
+import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
 import com.popflix.domain.storage.repository.StorageLikeRepository;
@@ -193,34 +191,7 @@ public class StorageServiceImpl implements StorageService {
         storageRepository.save(storage);
     }
 
-    // 보관함 이름 수정 기능
-    @Transactional
-    @Override
-    public void updateStorageName(Long storageId, String newName, Long userId) {
-        Storage storage = storageRepository.findById(storageId)
-                .orElseThrow(() -> new StorageNotFoundException(storageId));
-
-        if (!storage.getUser().getUserId().equals(userId)) {
-            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
-        }
-
-        storage.changeStorageName(newName);
-    }
-
-    // 보관함 소개글 수정 기능
-    @Transactional
-    @Override
-    public void updateStorageOverview(Long storageId, String newOverview, Long userId) {
-        Storage storage = storageRepository.findById(storageId)
-                .orElseThrow(() -> new StorageNotFoundException(storageId));
-
-        if (!storage.getUser().getUserId().equals(userId)) {
-            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
-        }
-
-        storage.changeStorageOverview(newOverview);
-    }
-
+    // 보관함 삭제
     @Transactional
     @Override
     public void deleteStorage(Long storageId, Long userId) {
@@ -236,6 +207,27 @@ public class StorageServiceImpl implements StorageService {
         storage.getStorageLikes().forEach(StorageLike::delete);
 
         storage.delete();
+
+        storageRepository.save(storage);
+    }
+
+    @Transactional
+    @Override
+    public void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, Long userId) {
+        Storage storage = storageRepository.findById(storageId)
+                .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+        if (!storage.getUser().getUserId().equals(userId)) {
+            throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
+        }
+
+        if (requestDto.getNewName() != null && !requestDto.getNewName().isEmpty()) {
+            storage.changeStorageName(requestDto.getNewName());
+        }
+
+        if (requestDto.getNewOverview() != null && !requestDto.getNewOverview().isEmpty()) {
+            storage.changeStorageOverview(requestDto.getNewOverview());
+        }
 
         storageRepository.save(storage);
     }
