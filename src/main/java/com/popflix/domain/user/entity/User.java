@@ -7,8 +7,10 @@ import com.popflix.domain.movie.entity.Recommendation;
 import com.popflix.domain.user.enums.AuthType;
 import com.popflix.domain.user.enums.Gender;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "User")
 @Getter
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
