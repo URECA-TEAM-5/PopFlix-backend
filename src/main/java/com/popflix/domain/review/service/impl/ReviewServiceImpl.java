@@ -4,6 +4,8 @@ import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.movie.exception.UserNotFoundException;
 import com.popflix.domain.movie.repository.MovieRepository;
+import com.popflix.domain.notification.enums.NotificationType;
+import com.popflix.domain.notification.event.dto.ReviewCreatedEvent;
 import com.popflix.domain.review.dto.*;
 import com.popflix.domain.review.entity.Comment;
 import com.popflix.domain.review.entity.Review;
@@ -18,6 +20,7 @@ import com.popflix.domain.review.service.ReviewService;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -52,6 +56,9 @@ public class ReviewServiceImpl implements ReviewService {
                 .build();
 
         Review savedReview = reviewRepository.save(review);
+
+        publishReviewCreatedEvent(savedReview);
+
         return convertToReviewResponse(savedReview);
     }
 
@@ -164,9 +171,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private ReviewResponseDto convertToReviewResponse(Review review) {
-        String profileImageBase64 = review.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(review.getUser().getProfileImage()) : null;
-
         return ReviewResponseDto.builder()
                 .reviewId(review.getReviewId())
                 .review(review.getReview())
@@ -180,9 +184,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private ReviewDetailResponseDto convertToReviewDetailResponse(Review review) {
-        String profileImageBase64 = review.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(review.getUser().getProfileImage()) : null;
-
         return ReviewDetailResponseDto.builder()
                 .reviewId(review.getReviewId())
                 .review(review.getReview())
@@ -215,13 +216,28 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private ReviewResponseDto.UserInfo convertToUserInfo(User user) {
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
-
         return ReviewResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImageUrl(user.getProfileImage())
                 .build();
+    }
+
+    private void publishReviewCreatedEvent(Review review) {
+        ReviewCreatedEvent event = ReviewCreatedEvent.builder()
+                .reviewId(review.getReviewId())
+                .movieId(review.getMovie().getId())
+                .movieTitle(review.getMovie().getTitle())
+                .genreIds(review.getMovie().getMovieGenres().stream()
+                        .map(mg -> mg.getGenre().getId())
+                        .collect(Collectors.toList()))
+                .type(NotificationType.NEW_REVIEW)
+                .reviewer(review.getUser())
+                .reviewerNickname(review.getUser().getNickname())
+                .reviewContent(review.getReview())
+                .createdAt(review.getCreateAt())
+                .build();
+
+        eventPublisher.publishEvent(event);
     }
 }

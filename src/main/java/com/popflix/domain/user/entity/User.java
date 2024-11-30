@@ -4,13 +4,13 @@ import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.movie.entity.MovieLike;
 import com.popflix.domain.movie.entity.Rating;
 import com.popflix.domain.movie.entity.Recommendation;
-import com.popflix.domain.photoreview.entity.PhotoReviewReplyLike;
-import com.popflix.domain.storage.entity.Storage;
-import com.popflix.domain.storage.entity.StorageLike;
 import com.popflix.domain.user.enums.AuthType;
 import com.popflix.domain.user.enums.Gender;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,36 +18,34 @@ import java.util.List;
 @Entity
 @Table(name = "User")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Lob
     @Column(name = "profile_image")
-    private byte[] profileImage;
-
-    @Column(name = "social")
-    private String social;
-
-    @Column(name = "social_id")
-    private String socialId;
+    private String profileImage; // 프로필 이미지를 저장하는 필드 (S3 URL을 저장할 수 있음)
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "auth_type")
-    private AuthType authType;
+    @Column(name = "auth_type", nullable = false)
+    private AuthType authType; // 소셜 로그인 타입 (GOOGLE, NAVER, NONE)
+
+    @Column(name = "social_id", unique = true)
+    private String socialId;
 
     @Column(name = "admin_log_id")
     private Long adminLogId;
@@ -56,6 +54,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "gender")
     private Gender gender;
 
+    // 연관관계 매핑
     @OneToMany(mappedBy = "user")
     private List<MovieLike> movieLikes = new ArrayList<>();
 
@@ -64,13 +63,4 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Recommendation> recommendations = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
-    private List<Storage> storages = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<StorageLike> storageLikes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<PhotoReviewReplyLike> photoReviewReplyLikes = new ArrayList<>();
 }

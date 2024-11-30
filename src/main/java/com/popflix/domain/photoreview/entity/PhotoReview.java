@@ -21,12 +21,11 @@ public class PhotoReview extends BaseSoftDeleteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 500, nullable = false)
     private String review;
 
-    @Lob
     @Column(nullable = false)
-    private byte[] reviewImage;
+    private String reviewImage;
 
     @Column(nullable = false)
     private Boolean isHidden = false;
@@ -46,7 +45,8 @@ public class PhotoReview extends BaseSoftDeleteEntity {
     private List<PhotoReviewLike> likes = new ArrayList<>();
 
     @Builder
-    public PhotoReview(String review, byte[] reviewImage, Movie movie, User user) {
+    public PhotoReview(String review, String reviewImage, Movie movie, User user) {
+        validateReviewImage(reviewImage);
         this.review = review;
         this.reviewImage = reviewImage;
         this.movie = movie;
@@ -54,11 +54,18 @@ public class PhotoReview extends BaseSoftDeleteEntity {
         this.isHidden = false;
     }
 
+    private void validateReviewImage(String reviewImage) {
+        if (reviewImage == null || reviewImage.trim().isEmpty()) {
+            throw new IllegalArgumentException("Photo review must have an image");
+        }
+    }
+
     public void updateReview(String review) {
         this.review = review;
     }
 
-    public void updateImage(byte[] reviewImage) {
+    public void updateImage(String reviewImage) {
+        validateReviewImage(reviewImage);
         this.reviewImage = reviewImage;
     }
 

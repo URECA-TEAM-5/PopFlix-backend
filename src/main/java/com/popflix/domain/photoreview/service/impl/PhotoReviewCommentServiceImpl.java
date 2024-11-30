@@ -143,9 +143,6 @@ public class PhotoReviewCommentServiceImpl implements PhotoReviewCommentService 
     }
 
     private PhotoReviewCommentResponseDto convertToCommentResponse(PhotoReviewComment comment) {
-        String profileImageBase64 = comment.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(comment.getUser().getProfileImage()) : null;
-
         return PhotoReviewCommentResponseDto.builder()
                 .commentId(comment.getCommentId())
                 .comment(comment.getComment())
@@ -158,13 +155,10 @@ public class PhotoReviewCommentServiceImpl implements PhotoReviewCommentService 
     }
 
     private PhotoReviewCommentResponseDto.UserInfo convertToCommentUserInfo(User user) {
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
-
         return PhotoReviewCommentResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 }

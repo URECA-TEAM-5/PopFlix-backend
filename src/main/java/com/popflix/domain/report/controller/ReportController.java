@@ -1,10 +1,10 @@
 package com.popflix.domain.report.controller;
 
 import com.popflix.domain.report.dto.ReportPostDto;
-import com.popflix.domain.report.dto.ReportListResponseDto;
-import com.popflix.domain.report.dto.ReportResponseDto;
+import com.popflix.domain.report.dto.AdminReportResponseDto;
 import com.popflix.domain.report.dto.ReportDetailResponseDto;
 import com.popflix.domain.report.enums.ReportStatus;
+import com.popflix.domain.report.service.ReportNavigationService;
 import com.popflix.domain.report.service.ReportService;
 import com.popflix.global.util.ApiUtil;
 import com.popflix.global.util.ApiUtil.ApiSuccess;
@@ -20,15 +20,28 @@ import org.springframework.web.bind.annotation.*;
 public class ReportController {
 
     private final ReportService reportService;
+    private final ReportNavigationService reportNavigationService;
 
+    // 신고 생성
     @PostMapping
     public ApiSuccess<?> createReport(
             @Valid @RequestBody ReportPostDto requestDto
     ) {
-        ReportResponseDto response = reportService.createReport(requestDto);
+        ReportDetailResponseDto response = reportService.createReport(requestDto);
         return ApiUtil.success(response);
     }
 
+    // 관리자용 신고 목록 조회
+    @GetMapping("/admin")
+    public ApiSuccess<?> getAdminReports(
+            @RequestParam(required = false, defaultValue = "PENDING") ReportStatus status,
+            Pageable pageable
+    ) {
+        Page<AdminReportResponseDto> response = reportService.getAdminReports(status, pageable);
+        return ApiUtil.success(response);
+    }
+
+    // 신고 상세 정보 조회
     @GetMapping("/{reportId}")
     public ApiSuccess<?> getReport(
             @PathVariable Long reportId
@@ -37,15 +50,7 @@ public class ReportController {
         return ApiUtil.success(response);
     }
 
-    @GetMapping
-    public ApiSuccess<?> getReports(
-            @RequestParam(required = false, defaultValue = "PENDING") ReportStatus status,
-            Pageable pageable
-    ) {
-        Page<ReportListResponseDto> response = reportService.getReports(status, pageable);
-        return ApiUtil.success(response);
-    }
-
+    // 신고 상태 업데이트 (승인/거절)
     @PatchMapping("/{reportId}/status")
     public ApiSuccess<?> updateReportStatus(
             @PathVariable Long reportId,

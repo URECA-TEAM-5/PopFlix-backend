@@ -4,6 +4,7 @@ import com.popflix.domain.photoreview.dto.*;
 import com.popflix.domain.photoreview.service.PhotoReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,9 @@ import java.util.List;
 public class PhotoReviewController {
     private final PhotoReviewService photoReviewService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PhotoReviewResponseDto> createPhotoReview(
-            @Valid @RequestBody PhotoReviewPostDto requestDto) {
+            @ModelAttribute PhotoReviewPostDto requestDto) {
         return ResponseEntity.ok(photoReviewService.createPhotoReview(requestDto));
     }
 
