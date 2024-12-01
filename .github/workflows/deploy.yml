@@ -7,7 +7,7 @@ on:
     branches: [ "main", "dev" ]
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }} 
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: my-production-repository
   ECS_SERVICE: my-production-service
   ECS_CLUSTER: my-production-cluster1
@@ -31,6 +31,11 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+
+    - name: Build with Gradle
+      run: |
+        chmod +x ./gradlew
+        ./gradlew build -x test
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -56,7 +61,7 @@ jobs:
 
     - name: Download task definition
       run: |
-        aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} \\
+        aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} \
         --query taskDefinition > task-definition.json
 
     - name: Fill in the new image ID in the Amazon ECS task definition
