@@ -1,6 +1,5 @@
 package com.popflix.domain.movie.entity;
 
-import com.popflix.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

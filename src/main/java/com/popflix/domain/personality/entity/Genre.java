@@ -18,7 +18,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 public class Genre extends BaseTimeEntity {
     @Id
     @JsonProperty("genre_ids")

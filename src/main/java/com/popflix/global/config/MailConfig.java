@@ -9,11 +9,11 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+    // test
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         // Gmail SMTP 서버 설정
-
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
