@@ -79,21 +79,22 @@ public class MovieController {
     // 영화 목록 조회
     @GetMapping
     public ApiSuccess<?> getMovieList(
-            @RequestParam(value = "keyword", required = false) final String keyword,
-            @RequestParam(value = "genre", required = false) final String genre,
-            final Pageable pageable) {
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "userId", required = false) Long userId,
+            Pageable pageable) {
 
         Page<GetMovieListResponseDto> movieList;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             // 키워드 기반 검색
-            movieList = movieService.getMovieListByKeyword(keyword, pageable);
+            movieList = movieService.getMovieListByKeyword(keyword, pageable, userId);
         } else if (genre != null && !genre.trim().isEmpty()) {
             // 장르별 영화 검색
-            movieList = movieService.getMovieListByGenre(genre, pageable);
+            movieList = movieService.getMovieListByGenre(genre, pageable, userId);
         } else {
             // 전체 영화 조회
-            movieList = movieService.getAllMovies(pageable);
+            movieList = movieService.getAllMovies(pageable, userId);
         }
 
         return ApiUtil.success(movieList);
