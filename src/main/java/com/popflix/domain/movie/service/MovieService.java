@@ -10,11 +10,11 @@ import org.springframework.data.domain.Pageable;
 public interface MovieService {
     GetMovieRatingResponseDto getMovieRatings(Long movieId);
 
-    Page<GetMovieListResponseDto> getMovieListByKeyword(String keyword, Pageable pageable);
+    Page<GetMovieListResponseDto> getMovieListByKeyword(String keyword, Pageable pageable,Long userId);
 
-    Page<GetMovieListResponseDto> getMovieListByGenre(String genre, Pageable pageable);
+    Page<GetMovieListResponseDto> getMovieListByGenre(String genre, Pageable pageable, Long userId);
 
-    Page<GetMovieListResponseDto> getAllMovies(Pageable pageable);
+    Page<GetMovieListResponseDto> getAllMovies(Pageable pageable, Long userId);
 
     GetDetailsResponseDto getMovieDetails(Long movieId, Long userId);
 }

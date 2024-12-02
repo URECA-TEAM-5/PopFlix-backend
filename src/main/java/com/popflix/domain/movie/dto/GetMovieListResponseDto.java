@@ -14,14 +14,16 @@ public class GetMovieListResponseDto {
     private String posterUrl;
     private double popcornScore;
     private Long likeCount;
+    private Boolean isLiked;
 
-    public static GetMovieListResponseDto from(Movie movie, Double averageRating) {
+    public static GetMovieListResponseDto from(Movie movie, Double averageRating, Boolean isLiked) {
         return GetMovieListResponseDto.builder()
                 .movieId(movie.getId())
                 .title(movie.getTitle())
                 .posterUrl(movie.getPosterPath())
                 .popcornScore(averageRating)
                 .likeCount(movie.getLikeCount())
+                .isLiked(isLiked)
                 .build();
     }
 }
