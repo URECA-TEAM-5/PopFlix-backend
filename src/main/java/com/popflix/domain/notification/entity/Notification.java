@@ -17,11 +17,21 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification extends BaseSoftDeleteEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "notification_id")
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewer_id")
+    private User reviewer;
+
+    @Column(length = 1000, nullable = false)
+    private String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -36,21 +46,15 @@ public class Notification extends BaseSoftDeleteEntity {
     private NotificationStatus status;
 
     @Column(nullable = false)
-    private String content;
-
-    @Column(nullable = false)
     private boolean isRead;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
 
     @Builder
     public Notification(
             NotificationType type,
             NotificationChannel channel,
             String content,
-            User user
+            User user,
+            User reviewer
     ) {
         this.type = type;
         this.channel = channel;
@@ -58,6 +62,7 @@ public class Notification extends BaseSoftDeleteEntity {
         this.status = NotificationStatus.PENDING;
         this.isRead = false;
         this.user = user;
+        this.reviewer = reviewer;
     }
 
     public void markAsRead() {

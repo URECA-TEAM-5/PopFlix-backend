@@ -142,9 +142,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private CommentResponseDto convertToCommentResponse(Comment comment) {
-        String profileImageBase64 = comment.getUser().getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(comment.getUser().getProfileImage()) : null;
-
         return CommentResponseDto.builder()
                 .commentId(comment.getCommentId())
                 .comment(comment.getComment())
@@ -157,13 +154,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private CommentResponseDto.UserInfo convertToCommentUserInfo(User user) {
-        String profileImageBase64 = user.getProfileImage() != null ?
-                Base64.getEncoder().encodeToString(user.getProfileImage()) : null;
-
         return CommentResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageBase64)
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 }
