@@ -6,6 +6,7 @@ import com.popflix.domain.movie.entity.Rating;
 import com.popflix.domain.movie.entity.Recommendation;
 import com.popflix.domain.user.enums.AuthType;
 import com.popflix.domain.user.enums.Gender;
+import com.popflix.domain.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,9 +26,6 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
     @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
 
@@ -38,17 +36,18 @@ public class User extends BaseTimeEntity {
     private String email;
 
     @Column(name = "profile_image")
-    private String profileImage; // 프로필 이미지를 저장하는 필드 (S3 URL을 저장할 수 있음)
+    private String profileImage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "auth_type", nullable = false)
-    private AuthType authType; // 소셜 로그인 타입 (GOOGLE, NAVER, NONE)
+    private AuthType authType;
 
     @Column(name = "social_id", unique = true)
     private String socialId;
 
-    @Column(name = "admin_log_id")
-    private Long adminLogId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
@@ -63,4 +62,36 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Recommendation> recommendations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE)
+    private List<UserGenre> userGenres = new ArrayList<>();
+
+    @Builder
+    public User(String email, String name, String nickname, String profileImage,
+                AuthType authType, String socialId, Role role, Gender gender) {
+        this.email = email;
+        this.name = name;
+        this.nickname = nickname;
+        this.profileImage = profileImage;
+        this.authType = authType;
+        this.socialId = socialId;
+        this.role = role;
+        this.gender = gender;
+    }
+
+    public void updateProfile(String nickname, String profileImage) {
+        this.nickname = nickname;
+        this.profileImage = profileImage;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public void addUserGenre(UserGenre userGenre) {
+        this.userGenres.add(userGenre);
+        if (userGenre.getUser() != this) {
+            userGenre.setUser(this);
+        }
+    }
 }
