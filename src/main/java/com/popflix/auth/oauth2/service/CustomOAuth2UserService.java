@@ -3,7 +3,7 @@ package com.popflix.auth.oauth2.service;
 import com.popflix.auth.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.popflix.auth.oauth2.userinfo.NaverOAuth2UserInfo;
 import com.popflix.auth.oauth2.userinfo.OAuth2UserInfo;
-import com.popflix.domain.user.dto.UserDto.SignUpInfo;
+import com.popflix.domain.user.dto.SignUpDto;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.enums.AuthType;
 import com.popflix.domain.user.repository.UserRepository;
@@ -27,7 +27,7 @@ import java.util.Map;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserService userService;
-    private final UserRepository userRepository;  // UserRepository 추가
+    private final UserRepository userRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -57,7 +57,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
-    // 유니크한 닉네임을 생성하는 메소드 추가
     private String generateUniqueNickname(String baseName) {
         String nickname = baseName;
         int suffix = 1;
@@ -76,7 +75,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } catch (RuntimeException e) {
             log.info("Creating new user for Provider: {}", registrationId);
             return userService.registerUser(
-                    SignUpInfo.builder()
+                    SignUpDto.builder()
                             .email(userInfo.getEmail())
                             .name(userInfo.getName())
                             .nickname(generateUniqueNickname(userInfo.getName()))

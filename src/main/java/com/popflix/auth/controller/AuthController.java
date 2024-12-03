@@ -5,7 +5,7 @@ import com.popflix.auth.dto.ProfileImage;
 import com.popflix.auth.dto.TokenDto;
 import com.popflix.auth.service.AuthService;
 import com.popflix.auth.token.TokenProvider;
-import com.popflix.domain.user.dto.UserDto;
+import com.popflix.domain.user.dto.UserInfoDto;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.service.UserService;
 import com.popflix.global.util.ApiUtil;
@@ -106,7 +106,7 @@ public class AuthController {
 
         String socialId = authentication.getName();
         User user = userService.getUserBySocialId(socialId);
-        UserDto.UserInfo userInfo = UserDto.UserInfo.from(user);
+        UserInfoDto userInfo = UserInfoDto.from(user);
         return ResponseEntity.ok(ApiUtil.success(userInfo));
     }
 }
