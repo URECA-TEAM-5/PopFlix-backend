@@ -4,10 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.popflix.domain.personality.entity.Genre;
-import com.popflix.domain.user.dto.UserDto.UserInfo;
-import com.popflix.domain.user.dto.UserDto.SignUpInfo;
-import com.popflix.domain.user.dto.UserDto.GenreUpdateRequest;
-import com.popflix.domain.user.dto.UserRegistrationDto;
+import com.popflix.domain.user.dto.*;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.entity.UserGenre;
 import com.popflix.domain.user.exception.*;
@@ -16,6 +13,7 @@ import com.popflix.domain.user.repository.UserRepository;
 import com.popflix.domain.personality.repository.GenreRepository;
 import com.popflix.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,18 +40,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User registerUser(SignUpInfo signUpInfo) {
-        if (userRepository.existsByEmail(signUpInfo.getEmail())) {
+    public User registerUser(SignUpDto signUpDto) {
+        if (userRepository.existsByEmail(signUpDto.getEmail())) {
             throw new DuplicateEmailException();
         }
-        if (userRepository.existsByNickname(signUpInfo.getNickname())) {
+        if (userRepository.existsByNickname(signUpDto.getNickname())) {
             throw new DuplicateNicknameException();
         }
 
-        User user = userRepository.save(signUpInfo.toEntity());
+        User user = userRepository.save(signUpDto.toEntity());
 
-        if (signUpInfo.getGenreIds() != null) {
-            signUpInfo.getGenreIds().forEach(genreId -> {
+        if (signUpDto.getGenreIds() != null) {
+            signUpDto.getGenreIds().forEach(genreId -> {
                 UserGenre userGenre = UserGenre.builder()
                         .genreId(genreId)
                         .user(user)
@@ -66,9 +65,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserInfo completeRegistration(UserRegistrationDto registrationDto, MultipartFile profileImage) {
+    public UserInfoDto completeRegistration(UserRegistrationDto registrationDto, MultipartFile profileImage) {
         Genre genre = genreRepository.findById(registrationDto.getGenreId())
-                .orElseThrow(() -> new InvalidGenreException());
+                .orElseThrow(InvalidGenreException::new);
 
         User user = userRepository.findBySocialId(SecurityContextHolder.getContext()
                         .getAuthentication().getName())
@@ -92,20 +91,21 @@ public class UserServiceImpl implements UserService {
                 .genreId(genre.getId())
                 .user(user)
                 .build();
+        userGenreRepository.save(userGenre);
         user.addUserGenre(userGenre);
 
-        return UserInfo.from(user);
+        return UserInfoDto.from(user);
     }
 
     @Override
     @Transactional
-    public void updateUserGenres(Long userId, GenreUpdateRequest request) {
+    public void updateUserGenres(Long userId, GenrePatchDto patchRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
         userGenreRepository.deleteAllByUserId(userId);
 
-        request.getGenreIds().forEach(genreId -> {
+        patchRequest.getGenreIds().forEach(genreId -> {
             UserGenre userGenre = UserGenre.builder()
                     .user(user)
                     .genreId(genreId)
@@ -113,6 +113,49 @@ public class UserServiceImpl implements UserService {
             userGenreRepository.save(userGenre);
         });
     }
+
+    @Override
+    @Transactional
+    public UserInfoDto updateUser(Long userId, UserPatchDto patchRequest, MultipartFile profileImage) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (!user.getNickname().equals(patchRequest.getNickname()) &&
+                userRepository.existsByNickname(patchRequest.getNickname())) {
+            throw new DuplicateNicknameException();
+        }
+
+        Genre genre = genreRepository.findById(patchRequest.getGenreId())
+                .orElseThrow(InvalidGenreException::new);
+
+        String profileImageUrl = user.getProfileImage();
+        if (profileImage != null && !profileImage.isEmpty()) {
+            if (profileImageUrl != null && !profileImageUrl.contains("/defaults/")) {
+                try {
+                    amazonS3.deleteObject(bucket, extractFileNameFromUrl(profileImageUrl));
+                } catch (Exception e) {
+                    log.warn("Failed to delete old profile image", e);
+                }
+            }
+            profileImageUrl = uploadProfileImage(profileImage, user.getUserId());
+        } else if (patchRequest.getDefaultProfileImage() != null) {
+            profileImageUrl = patchRequest.getDefaultProfileImage();
+        }
+
+        user.updateProfile(patchRequest.getNickname(), profileImageUrl);
+        user.setGender(patchRequest.getGender());
+
+        userGenreRepository.deleteAllByUserId(user.getUserId());
+        UserGenre userGenre = UserGenre.builder()
+                .genreId(genre.getId())
+                .user(user)
+                .build();
+        userGenreRepository.save(userGenre);
+        user.addUserGenre(userGenre);
+
+        return UserInfoDto.from(user);
+    }
+
 
     @Override
     public boolean isNicknameAvailable(String nickname) {
@@ -125,10 +168,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo getUserInfo(Long userId) {
+    public UserInfoDto getUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
-        return UserInfo.from(user);
+        return UserInfoDto.from(user);
     }
 
     @Override
@@ -141,6 +184,26 @@ public class UserServiceImpl implements UserService {
     public User getUserBySocialId(String socialId) {
         return userRepository.findBySocialId(socialId)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        userGenreRepository.deleteAllByUserId(userId);
+
+        String profileImageUrl = user.getProfileImage();
+        if (profileImageUrl != null && !profileImageUrl.contains("/defaults/")) {
+            try {
+                amazonS3.deleteObject(bucket, extractFileNameFromUrl(profileImageUrl));
+            } catch (Exception e) {
+                log.warn("Failed to delete profile image during user deletion", e);
+            }
+        }
+
+        userRepository.delete(user);
     }
 
     private String uploadProfileImage(MultipartFile file, Long userId) {
@@ -160,5 +223,13 @@ public class UserServiceImpl implements UserService {
         } catch (IOException e) {
             throw new RuntimeException("프로필 이미지 업로드에 실패했습니다.", e);
         }
+    }
+
+    private String extractFileNameFromUrl(String imageUrl) {
+        String bucketPrefix = bucket + ".s3.amazonaws.com/";
+        if (imageUrl.contains(bucketPrefix)) {
+            return imageUrl.substring(imageUrl.indexOf(bucketPrefix) + bucketPrefix.length());
+        }
+        return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
     }
 }
