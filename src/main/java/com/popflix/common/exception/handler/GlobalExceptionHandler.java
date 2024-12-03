@@ -5,6 +5,9 @@ import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateMovieException;
 import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
+import com.popflix.domain.user.exception.DuplicateEmailException;
+import com.popflix.domain.user.exception.DuplicateNicknameException;
+import com.popflix.domain.user.exception.UserNotFoundException;
 import com.popflix.global.util.ApiUtil;
 import com.popflix.global.util.ApiUtil.ApiError;
 import jakarta.servlet.http.HttpServletResponse;
@@ -73,5 +76,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    protected ResponseEntity<?> handleUserNotFoundException(UserNotFoundException e) {
+        log.error(e.getMessage(), e);
+        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    protected ResponseEntity<?> handleDuplicateEmailException(DuplicateEmailException e) {
+        log.error(e.getMessage(), e);
+        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(DuplicateNicknameException.class)
+    protected ResponseEntity<?> handleDuplicateNicknameException(DuplicateNicknameException e) {
+        log.error(e.getMessage(), e);
+        ApiUtil.ApiError<String> error = ApiUtil.error(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(error);
+    }
 
 }
