@@ -11,7 +11,7 @@ env:
   ECR_REPOSITORY: my-production-repository
   ECS_SERVICE: my-production-service
   ECS_CLUSTER: my-production-cluster1
-  ECS_TASK_DEFINITION: my-production-task
+  ECS_TASK_DEFINITION: popflix-task:1  # 변경된 부분
 
 permissions:
   contents: read
@@ -69,7 +69,7 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
-        container-name: my-production-container
+        container-name: popflix-app  # 수정된 부분
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition

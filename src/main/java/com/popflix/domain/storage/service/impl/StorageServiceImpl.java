@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -230,6 +231,24 @@ public class StorageServiceImpl implements StorageService {
         }
 
         storageRepository.save(storage);
+    }
+
+    // 내가 만든 보관함 목록 조회
+    @Override
+    public List<GetMyStorageResponseDto> getStoragesByCreator(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        List<Storage> storages = storageRepository.findByUser(user);
+
+        List<GetMyStorageResponseDto> responseDtos = new ArrayList<>();
+        for (Storage storage : storages) {
+            List<Movie> movies = storage.getMovies();
+            GetMyStorageResponseDto responseDto = new GetMyStorageResponseDto(storage, movies, userId);
+            responseDtos.add(responseDto);
+        }
+
+        return responseDtos;
     }
 
 

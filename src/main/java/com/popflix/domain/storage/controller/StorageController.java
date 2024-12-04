@@ -84,6 +84,12 @@ public class StorageController {
         return ApiUtil.success(storageService.getOtherStoragesByCreator(storageId, userId));
     }
 
+    // 내가 만든 보관함 목록 조회
+    @GetMapping("/my-storage")
+    public ApiUtil.ApiSuccess<?> getMyStorages(@RequestParam Long userId) {
+        return ApiUtil.success(storageService.getStoragesByCreator(userId));
+    }
+
     // 보관함 좋아요 추가 & 취소
     @PostMapping("/{storageId}/like")
     public ApiUtil.ApiSuccess<?> storageLike(
