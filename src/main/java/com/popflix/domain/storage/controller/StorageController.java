@@ -90,6 +90,12 @@ public class StorageController {
         return ApiUtil.success(storageService.getStoragesByCreator(userId));
     }
 
+    // 내가 좋아요 누른 보관함 목록 조회
+    @GetMapping("/liked-storages")
+    public ApiUtil.ApiSuccess<?> getLikedStorages(@RequestParam Long userId) {
+        return ApiUtil.success(storageService.getLikedStorages(userId));
+    }
+
     // 보관함 좋아요 추가 & 취소
     @PostMapping("/{storageId}/like")
     public ApiUtil.ApiSuccess<?> storageLike(
