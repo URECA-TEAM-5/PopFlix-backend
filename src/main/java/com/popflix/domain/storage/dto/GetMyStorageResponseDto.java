@@ -20,7 +20,7 @@ public class GetMyStorageResponseDto {
     private Long userId;
     private List<GetMoviePosterResponseDto> movies;
 
-    public GetMyStorageResponseDto(Storage storage, List<Movie> movies, Long userId) {
+    public GetMyStorageResponseDto(Storage storage, List<Movie> movies) {
         this.id = storage.getId();
         this.storageName = storage.getStorageName();
         this.isPublic = storage.getIsPublic();

@@ -244,11 +244,24 @@ public class StorageServiceImpl implements StorageService {
         List<GetMyStorageResponseDto> responseDtos = new ArrayList<>();
         for (Storage storage : storages) {
             List<Movie> movies = storage.getMovies();
-            GetMyStorageResponseDto responseDto = new GetMyStorageResponseDto(storage, movies, userId);
+            GetMyStorageResponseDto responseDto = new GetMyStorageResponseDto(storage, movies);
             responseDtos.add(responseDto);
         }
 
         return responseDtos;
+    }
+
+    // 내가 좋아요한 보관함 목록 조회
+    @Override
+    public List<GetLikedStorageResponseDto> getLikedStorages(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        List<StorageLike> likedStorages = storageLikeRepository.findByUserAndIsLikedTrue(user);
+
+        return likedStorages.stream()
+                .map(storageLike -> new GetLikedStorageResponseDto(storageLike.getStorage(), true))
+                .collect(Collectors.toList());
     }
 
 

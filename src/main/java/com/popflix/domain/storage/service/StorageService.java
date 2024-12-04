@@ -27,4 +27,6 @@ public interface StorageService {
     void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, Long userId);
 
     List<GetMyStorageResponseDto> getStoragesByCreator(Long userId);
+
+    List<GetLikedStorageResponseDto> getLikedStorages(Long userId);
 }
