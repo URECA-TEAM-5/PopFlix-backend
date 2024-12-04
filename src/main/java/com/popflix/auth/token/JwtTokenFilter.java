@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -22,38 +21,34 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        String jwt = resolveToken(request);
-        log.info("Processing token: {}", jwt);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        try {
+            String token = tokenProvider.resolveToken(request);
 
-        if (StringUtils.hasText(jwt)) {
-            jwt = jwt.startsWith("Bearer ") ? jwt.substring(7).trim() : jwt;
-
-            if (tokenProvider.validateToken(jwt)) {
-                String isLogout = redisTemplate.opsForValue().get("BL:" + jwt);
-                log.info("Token blacklist status: {}", isLogout);
-
-                if (isLogout == null) {
-                    Authentication authentication = tokenProvider.getAuthentication(jwt);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.info("Valid authentication set for user: {}", authentication.getName());
-                } else {
-                    log.info("Token is blacklisted");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
+            if (token != null && tokenProvider.validateToken(token)) {
+                Authentication authentication = tokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("Set Authentication to security context for '{}' token", authentication.getName());
+            } else {
+                log.debug("No valid JWT token found");
             }
+        } catch (Exception e) {
+            log.error("Cannot set user authentication: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (!StringUtils.hasText(bearerToken)) {
-            bearerToken = request.getParameter("accessToken");
-        }
-        return bearerToken;
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/auth/") ||
+                path.startsWith("/oauth2/") ||
+                path.startsWith("/login/oauth2/code/") ||
+                path.equals("/api/users/register") ||
+                path.startsWith("/swagger-ui/") ||
+                path.startsWith("/v3/api-docs/");
     }
 }

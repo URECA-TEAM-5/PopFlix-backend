@@ -13,23 +13,29 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        Info info = new Info()
-                .title("POPFLIX API Documentation")
-                .version("v1.0")
-                .description("POPFLIX 백엔드 API 문서");
+        SecurityScheme cookieAuth = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.COOKIE)
+                .name("access_token");
 
-        SecurityScheme securityScheme = new SecurityScheme()
+        SecurityScheme bearerAuth = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
-                .bearerFormat("JWT")
-                .in(SecurityScheme.In.HEADER)
-                .name("Authorization");
-
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
+                .bearerFormat("JWT");
 
         return new OpenAPI()
-                .info(info)
-                .addSecurityItem(securityRequirement)
-                .components(new Components().addSecuritySchemes("bearerAuth", securityScheme));
+                .components(new Components()
+                        .addSecuritySchemes("cookieAuth", cookieAuth)
+                        .addSecuritySchemes("bearerAuth", bearerAuth))
+                .info(new Info()
+                        .title("PopFlix API")
+                        .version("1.0.0")
+                        .description("PopFlix API Documentation<br><br>" +
+                                "인증 방식:<br>" +
+                                "1. Cookie Authentication (Production)<br>" +
+                                "2. Bearer Token Authentication (Development/Test)<br><br>" +
+                                "개발 테스트 시에는 Bearer Token 방식을 사용하시면 됩니다."))
+                .addSecurityItem(new SecurityRequirement().addList("cookieAuth"))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 }
