@@ -17,7 +17,7 @@ public class TokenDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Request {
-        private String refreshToken;
+        private String accessToken;
     }
 
     @Getter
@@ -26,6 +26,5 @@ public class TokenDto {
     @AllArgsConstructor
     public static class Response {
         private String accessToken;
-        private String refreshToken;
     }
 }

@@ -1,5 +1,6 @@
 package com.popflix.auth.service;
 
+import com.popflix.auth.token.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class AuthService {
 
     private final RedisTemplate<String, String> redisTemplate;
+    private final TokenProvider tokenProvider;
 
     public void logout(String accessToken, String socialId) {
         String token = accessToken.startsWith("Bearer ")
@@ -37,6 +39,6 @@ public class AuthService {
         redisTemplate.delete("RT:" + socialId);
         redisTemplate.opsForValue()
                 .set("RT:" + socialId, newRefreshToken,
-                        30, TimeUnit.DAYS);
+                        tokenProvider.getRefreshTokenValidityTime(), TimeUnit.MILLISECONDS);
     }
 }

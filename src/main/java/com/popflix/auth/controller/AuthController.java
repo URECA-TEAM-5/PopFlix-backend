@@ -2,8 +2,6 @@ package com.popflix.auth.controller;
 
 import com.popflix.auth.dto.OAuthProviderInfo;
 import com.popflix.auth.dto.ProfileImage;
-import com.popflix.auth.dto.TokenDto;
-import com.popflix.auth.service.AuthService;
 import com.popflix.auth.token.TokenProvider;
 import com.popflix.domain.user.dto.UserInfoDto;
 import com.popflix.domain.user.entity.User;
@@ -14,9 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,12 +26,21 @@ import java.util.Map;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
+
     private final TokenProvider tokenProvider;
     private final UserService userService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Value("${app.auth.cookie.domain}")
+    private String domain;
+
+    @Value("${app.auth.cookie.secure}")
+    private boolean secure;
+
+    private static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 
     @GetMapping("/login/urls")
     public ResponseEntity<?> getLoginUrls() {
@@ -67,34 +76,52 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String bearerToken) {
-        String accessToken = bearerToken.substring(7);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        authService.logout(accessToken, authentication.getName());
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = tokenProvider.resolveToken(request);
+        if (accessToken != null) {
+            tokenProvider.addToBlacklist(accessToken);
+        }
+
+        deleteTokenCookies(response);
         return ResponseEntity.ok(ApiUtil.success("로그아웃 되었습니다."));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody TokenDto.Request request) {
-        String refreshToken = request.getRefreshToken().replace("Bearer ", "");
+    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (REFRESH_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
-        if (!tokenProvider.validateToken(refreshToken)) {
-            return ResponseEntity.badRequest()
-                    .body(ApiUtil.error(400, "Invalid refresh token"));
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiUtil.error(401, "Refresh token not found"));
         }
 
         Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        String socialId = authentication.getName();
+
+        if (!tokenProvider.validateRefreshToken(refreshToken, socialId)) {
+            deleteTokenCookies(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiUtil.error(401, "Invalid refresh token"));
+        }
+
         String newAccessToken = tokenProvider.createAccessToken(authentication);
         String newRefreshToken = tokenProvider.createRefreshToken(authentication);
 
-        authService.refreshToken(refreshToken, newRefreshToken, authentication.getName());
+        addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, newAccessToken,
+                (int) (tokenProvider.getAccessTokenValidityTime() / 1000));
+        addTokenCookie(response, REFRESH_TOKEN_COOKIE_NAME, newRefreshToken,
+                (int) (tokenProvider.getRefreshTokenValidityTime() / 1000));
 
-        TokenDto.Response response = TokenDto.Response.builder()
-                .accessToken("Bearer " + newAccessToken)
-                .refreshToken("Bearer " + newRefreshToken)
-                .build();
-
-        return ResponseEntity.ok(ApiUtil.success(response));
+        return ResponseEntity.ok(ApiUtil.success("토큰이 갱신되었습니다."));
     }
 
     @GetMapping("/me")
@@ -107,6 +134,31 @@ public class AuthController {
         String socialId = authentication.getName();
         User user = userService.getUserBySocialId(socialId);
         UserInfoDto userInfo = UserInfoDto.from(user);
+
         return ResponseEntity.ok(ApiUtil.success(userInfo));
+    }
+
+    private void addTokenCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setDomain(domain);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(secure);
+        cookie.setMaxAge(maxAge);
+        response.addCookie(cookie);
+    }
+
+    private void deleteTokenCookies(HttpServletResponse response) {
+        deleteCookie(response, ACCESS_TOKEN_COOKIE_NAME);
+        deleteCookie(response, REFRESH_TOKEN_COOKIE_NAME);
+    }
+
+    private void deleteCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, "");
+        cookie.setDomain(domain);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }
