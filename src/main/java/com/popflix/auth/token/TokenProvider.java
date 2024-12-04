@@ -57,10 +57,7 @@ public class TokenProvider {
     }
 
     public String createAccessToken(Authentication authentication) {
-        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-        String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-        String id = extractSocialId(oauth2User, registrationId);
-        String socialId = registrationId + "_" + id;
+        String socialId = authentication.getName();
 
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -69,13 +66,10 @@ public class TokenProvider {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidityTime);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("auth", authorities);
-        claims.put("type", "access");
-
         return Jwts.builder()
                 .setSubject(socialId)
-                .addClaims(claims)
+                .claim("auth", authorities)
+                .claim("type", "access")
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(key)
@@ -138,10 +132,16 @@ public class TokenProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = parseToken(token);
 
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth", String.class).split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+        Collection<? extends GrantedAuthority> authorities;
+        String auth = claims.get("auth", String.class);
+
+        if (auth != null) {
+            authorities = Arrays.stream(auth.split(","))
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        } else {
+            authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        }
 
         User principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
