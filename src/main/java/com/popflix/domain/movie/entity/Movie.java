@@ -82,4 +82,7 @@ public class Movie extends BaseTimeEntity {
         }
     }
 
+    public void setPoster(String posterPath) {
+        this.posterPath = posterPath;
+    }
 }
