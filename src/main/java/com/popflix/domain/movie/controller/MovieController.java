@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-// cicd 테스트 - 5
+// cicd 테스트 - 6
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/movies")
