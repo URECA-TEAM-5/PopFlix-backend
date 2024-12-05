@@ -14,4 +14,5 @@ public interface PhotoReviewCommentService {
     List<PhotoReviewCommentResponseDto> getCommentsByUserId(Long userId);
     void likeComment(Long commentId, Long userId);
     void unlikeComment(Long commentId, Long userId);
+    List<PhotoReviewCommentResponseDto> getCommentsByReviewIdOrderByLikes(Long reviewId);
 }
