@@ -26,4 +26,12 @@ public interface PhotoReviewCommentRepository extends JpaRepository<PhotoReviewC
             "WHERE prc.user.userId = :userId " +
             "AND prc.isDeleted = false")
     List<PhotoReviewComment> findAllByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT prc FROM PhotoReviewComment prc " +
+            "LEFT JOIN prc.likes l " +
+            "WHERE prc.photoReview.reviewId = :reviewId " +
+            "AND prc.isDeleted = false " +
+            "GROUP BY prc " +
+            "ORDER BY COUNT(CASE WHEN l.commentLike = true AND l.isDeleted = false THEN 1 END) DESC")
+    List<PhotoReviewComment> findAllByReviewIdOrderByLikesDesc(@Param("reviewId") Long reviewId);
 }
