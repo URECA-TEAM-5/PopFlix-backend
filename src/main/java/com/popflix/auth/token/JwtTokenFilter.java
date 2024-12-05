@@ -25,6 +25,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String token = tokenProvider.resolveToken(request);
+            log.info("Resolved token: {}", token);
 
             if (token != null && tokenProvider.validateToken(token)) {
                 Authentication authentication = tokenProvider.getAuthentication(token);
@@ -44,7 +45,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/auth/") ||
+        return path.startsWith("/auth/login") ||
+                path.startsWith("/auth/refresh") ||
                 path.startsWith("/oauth2/") ||
                 path.startsWith("/login/oauth2/code/") ||
                 path.equals("/api/users/register") ||

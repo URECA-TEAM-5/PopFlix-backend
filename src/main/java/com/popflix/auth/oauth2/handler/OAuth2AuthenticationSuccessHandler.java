@@ -9,7 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -18,6 +21,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.popflix.auth.token.TokenProvider;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -43,8 +48,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
         String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-        String id;
 
+        String id;
         if ("naver".equals(registrationId)) {
             Map<String, Object> response_data = (Map<String, Object>) oauth2User.getAttributes().get("response");
             id = (String) response_data.get("id");
@@ -53,9 +58,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         String socialId = registrationId + "_" + id;
-        String accessToken = tokenProvider.createAccessToken(authentication);
+
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("USER"));
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(socialId, null, authorities);
+
+        String accessToken = tokenProvider.createAccessToken(newAuth);
         log.info("Generated Access Token: Bearer {}", accessToken);
-        String refreshToken = tokenProvider.createRefreshToken(authentication);
+        String refreshToken = tokenProvider.createRefreshToken(newAuth);
 
         addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, accessToken,
                 (int) (tokenProvider.getAccessTokenValidityTime() / 1000));
