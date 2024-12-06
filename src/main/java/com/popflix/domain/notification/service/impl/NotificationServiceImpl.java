@@ -5,6 +5,7 @@ import com.popflix.domain.notification.dto.NotificationResponseDto;
 import com.popflix.domain.notification.entity.Notification;
 import com.popflix.domain.notification.enums.NotificationChannel;
 import com.popflix.domain.notification.enums.NotificationType;
+import com.popflix.domain.notification.event.dto.ReviewCreatedEvent;
 import com.popflix.domain.notification.exception.NotificationException;
 import com.popflix.domain.notification.exception.NotificationNotFoundException;
 import com.popflix.domain.notification.repository.NotificationRepository;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class NotificationServiceImpl implements NotificationService {
-
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60; // 60 minutes
 
     private final EmitterService emitterService;
     private final EmailService emailService;
@@ -70,35 +69,43 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void sendNotification(Long userId, NotificationType type, String content) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotificationException("사용자를 찾을 수 없습니다."));
+    public void sendNotification(ReviewCreatedEvent event) {
+        String content = String.format("%s님이 '%s' 영화에 새로운 %s를 남겼습니다: %s",
+                event.getReviewerNickname(),
+                event.getMovieTitle(),
+                event.getType() == NotificationType.NEW_REVIEW ? "리뷰" : "포토리뷰",
+                event.getReviewContent());
 
-        final Notification notification = notificationRepository.save(Notification.builder()
-                .type(type)
-                .channel(NotificationChannel.SSE)
+        Notification notification = Notification.builder()
+                .user(event.getTargetUser())
+                .reviewer(event.getReviewer())
+                .targetId(event.getReviewId())
                 .content(content)
-                .user(user)
-                .build());
+                .type(event.getType())
+                .channel(NotificationChannel.SSE)
+                .build();
 
-        if (emitterService.exists(userId)) {
+        notification = notificationRepository.save(notification);
+        final Notification savedNotification = notification;
+
+        if (emitterService.exists(event.getTargetUser().getUserId())) {
             try {
-                emitterService.get(userId).ifPresent(emitter -> {
+                emitterService.get(event.getTargetUser().getUserId()).ifPresent(emitter -> {
                     try {
                         emitter.send(SseEmitter.event()
                                 .name("notification")
-                                .data(NotificationResponseDto.from(notification)));
-
-                        notification.markAsSent();
+                                .data(NotificationResponseDto.from(savedNotification)));
+                        savedNotification.markAsSent();
                     } catch (IOException e) {
-                        emitterService.remove(userId);
-                        notification.markAsFailed();
-                        throw new NotificationException("알림 전송에 실패했습니다.", e);
+                        savedNotification.markAsFailed();
+                        emitterService.remove(event.getTargetUser().getUserId());
+                        throw new NotificationException("알림 전송 실패", e);
                     }
                 });
             } catch (Exception e) {
-                log.error("Failed to send notification to user: {}", userId, e);
-                notification.markAsFailed();
+                savedNotification.markAsFailed();
+                log.error("Failed to send notification to user: {}",
+                        event.getTargetUser().getUserId(), e);
             }
         }
     }
@@ -110,13 +117,13 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new NotificationException("사용자를 찾을 수 없습니다."));
 
         Notification notification = Notification.builder()
+                .user(user)
+                .content(content)
                 .type(NotificationType.NEW_REVIEW)
                 .channel(NotificationChannel.EMAIL)
-                .content(content)
-                .user(user)
                 .build();
 
-        notificationRepository.save(notification);
+        notification = notificationRepository.save(notification);
 
         try {
             emailService.sendEmail(EmailRequestDto.builder()
@@ -124,7 +131,6 @@ public class NotificationServiceImpl implements NotificationService {
                     .subject(subject)
                     .content(content)
                     .build());
-
             notification.markAsSent();
         } catch (Exception e) {
             notification.markAsFailed();
@@ -134,8 +140,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<NotificationResponseDto> getUnreadNotifications(Long userId) {
-        List<Notification> notifications = notificationRepository.findUnreadByUserId(userId);
-        return notifications.stream()
+        return notificationRepository.findUnreadByUserId(userId).stream()
                 .map(NotificationResponseDto::from)
                 .collect(Collectors.toList());
     }
