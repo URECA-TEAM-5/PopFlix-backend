@@ -16,11 +16,8 @@ services:
       # Mail Configuration
       - SPRING_MAIL_USERNAME=tjdns2849@gmail.com
       - SPRING_MAIL_PASSWORD=qnniuzgfxisoeif
-      - AWS_ACCESS_KEY_ID=AKIAS66UDJHXWKOKISZN
 
       # AWS Configuration
-      - AWS_SECRET_ACCESS_KEY=wUAZ9HIdD+paROcOa0fll6dKQQuXmzr++aKdwWYp
-      - AWS_REGION=ap-northeast-2
       - AWS_S3_BUCKET=my-spring-popflix-app-bucket
 
       # OAuth2 Configuration
