@@ -14,10 +14,10 @@ public class GetStorageResponseDto {
     private Long movieCount;
     private Long likeCount;
     private Boolean isLiked;
-    private byte[] storageImage;
+    private String storageImage;
 
     @Builder
-    public GetStorageResponseDto(Long id, String storageName, String username, Long movieCount, Long likeCount, Boolean isLiked, byte[] storageImage) {
+    public GetStorageResponseDto(Long id, String storageName, String username, Long movieCount, Long likeCount, Boolean isLiked, String storageImage) {
         this.id = id;
         this.storageName = storageName;
         this.username = username;
