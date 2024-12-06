@@ -1,6 +1,7 @@
 package com.popflix.domain.movie.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.popflix.common.entity.BaseSoftDeleteEntity;
 import com.popflix.common.entity.BaseTimeEntity;
 import com.popflix.domain.storage.entity.MovieStorage;
 import jakarta.persistence.*;
@@ -13,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Movie extends BaseTimeEntity {
+public class Movie extends BaseSoftDeleteEntity { // 서버에 반영 되는지 테스트 원래는 " BaseTimeEntity " 임
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
