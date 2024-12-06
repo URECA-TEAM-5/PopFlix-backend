@@ -161,4 +161,12 @@ public class PhotoReviewCommentServiceImpl implements PhotoReviewCommentService 
                 .profileImageUrl(user.getProfileImage())
                 .build();
     }
+
+    @Override
+    public List<PhotoReviewCommentResponseDto> getCommentsByReviewIdOrderByLikes(Long reviewId) {
+        List<PhotoReviewComment> comments = commentRepository.findAllByReviewIdOrderByLikesDesc(reviewId);
+        return comments.stream()
+                .map(this::convertToCommentResponse)
+                .collect(Collectors.toList());
+    }
 }
