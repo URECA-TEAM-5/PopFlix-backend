@@ -11,7 +11,7 @@ env:
   ECR_REPOSITORY: my-production-repository
   ECS_SERVICE: my-production-service
   ECS_CLUSTER: my-production-cluster1
-  ECS_TASK_DEFINITION: popflix-task:34  # 변경된 부분
+  ECS_TASK_DEFINITION: popflix-task:46  # 변경된 부분
 
 permissions:
   contents: read
