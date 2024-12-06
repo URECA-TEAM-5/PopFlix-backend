@@ -12,6 +12,23 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=1234
       - SPRING_REDIS_HOST=redis
+
+      # Mail Configuration
+      - SPRING_MAIL_USERNAME=tjdns2849@gmail.com
+      - SPRING_MAIL_PASSWORD=qnniuzgfxisoeif
+
+      # AWS Configuration
+      - AWS_S3_BUCKET=my-spring-popflix-app-bucket
+
+      # OAuth2 Configuration
+      - GOOGLE_CLIENT_ID=569044455676-298a3786vpf0ph8f762ifpvgdr0habj4.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      - NAVER_CLIENT_ID=DoDkaWieoblYsz61VZtG
+      - NAVER_CLIENT_SECRET=3H01HVuCGg
+
+      # JWT Configuration
+      - JWT_SECRET_KEY=your_very_long_and_very_secure_secret_key_that_is_at_least_512_bits_long_please_change_this_in_production
+
     depends_on:
       - db
       - redis
