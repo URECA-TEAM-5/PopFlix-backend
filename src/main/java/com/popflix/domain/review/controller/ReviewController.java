@@ -2,6 +2,7 @@ package com.popflix.domain.review.controller;
 
 import com.popflix.domain.review.dto.*;
 import com.popflix.domain.review.service.ReviewService;
+import com.popflix.global.util.ApiUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -76,5 +77,11 @@ public class ReviewController {
             @RequestParam Long userId) {
         reviewService.unlikeReview(reviewId, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/movie/{movieId}/count")
+    public ResponseEntity<?> getReviewCount(@PathVariable Long movieId) {
+        long count = reviewService.getReviewCount(movieId);
+        return ResponseEntity.ok(ApiUtil.success(count));
     }
 }

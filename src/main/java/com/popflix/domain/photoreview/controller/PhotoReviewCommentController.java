@@ -67,4 +67,10 @@ public class PhotoReviewCommentController {
         commentService.unlikeComment(commentId, userId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/review/{reviewId}/likes")
+    public ResponseEntity<List<PhotoReviewCommentResponseDto>> getCommentsByReviewOrderByLikes(
+            @PathVariable Long reviewId) {
+        return ResponseEntity.ok(commentService.getCommentsByReviewIdOrderByLikes(reviewId));
+    }
 }
