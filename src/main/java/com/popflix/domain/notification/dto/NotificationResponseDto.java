@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class NotificationResponseDto {
     private Long id;                      // 알림 ID
     private Long userId;                  // 알림 받는 사용자 ID
+    private Long movieId;                 // 영화 ID
     private Long reviewerId;              // 리뷰 작성자 ID
     private String reviewerNickname;      // 리뷰 작성자 닉네임
     private String reviewerProfileImage;  // 리뷰 작성자 프로필 이미지
@@ -33,6 +34,7 @@ public class NotificationResponseDto {
         return NotificationResponseDto.builder()
                 .id(notification.getId())
                 .userId(notification.getUser().getUserId())
+                .movieId(notification.getMovieId())
                 .reviewerId(reviewer.getUserId())
                 .reviewerNickname(reviewer.getNickname())
                 .reviewerProfileImage(reviewer.getProfileImage())

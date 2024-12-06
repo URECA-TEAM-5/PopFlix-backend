@@ -78,6 +78,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification notification = Notification.builder()
                 .user(event.getTargetUser())
+                .movieId(event.getMovieId())
                 .reviewer(event.getReviewer())
                 .targetId(event.getReviewId())
                 .content(content)
