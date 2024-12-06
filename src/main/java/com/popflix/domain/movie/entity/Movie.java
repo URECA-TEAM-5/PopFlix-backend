@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Movie extends BaseSoftDeleteEntity { // 서버에 반영 되는지 테스트 원래는 " BaseTimeEntity " 임
+public class Movie extends BaseSoftDeleteEntity { // 서버에 반영 되는지 테스트 원래는 " BaseTimeEntity " 임!
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
