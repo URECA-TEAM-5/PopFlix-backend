@@ -25,6 +25,9 @@ public class Notification extends BaseSoftDeleteEntity {
     @JoinColumn(name = "user_id")
     private User user;                // 알림을 받는 사용자
 
+    @Column(name = "movie_id")
+    private Long movieId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewer_id")
     private User reviewer;            // 리뷰 작성자
@@ -53,12 +56,14 @@ public class Notification extends BaseSoftDeleteEntity {
     @Builder
     public Notification(
             User user,
+            Long movieId,
             User reviewer,
             Long targetId,
             String content,
             NotificationType type,
             NotificationChannel channel) {
         this.user = user;
+        this.movieId = movieId;
         this.reviewer = reviewer;
         this.targetId = targetId;
         this.content = content;
