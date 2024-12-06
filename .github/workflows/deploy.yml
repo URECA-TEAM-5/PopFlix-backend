@@ -11,7 +11,7 @@ env:
   ECR_REPOSITORY: my-production-repository
   ECS_SERVICE: my-production-service
   ECS_CLUSTER: my-production-cluster1
-  ECS_TASK_DEFINITION: popflix-task:49  # 변경된 부분1
+  ECS_TASK_DEFINITION: popflix-task:59  # 변경된 부분1
   MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
   MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
   TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
