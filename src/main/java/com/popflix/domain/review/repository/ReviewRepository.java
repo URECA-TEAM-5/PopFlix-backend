@@ -45,4 +45,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByMovieIdAndUserId(
             @Param("movieId") Long movieId,
             @Param("userId") Long userId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.movie.id = :movieId AND r.isDeleted = false")
+    long countByMovieId(@Param("movieId") Long movieId);
 }

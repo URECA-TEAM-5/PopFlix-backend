@@ -240,4 +240,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         eventPublisher.publishEvent(event);
     }
+
+    @Override
+    public long getReviewCount(Long movieId) {
+        return reviewRepository.countByMovieId(movieId);
+    }
 }
