@@ -11,4 +11,5 @@ public interface NotificationService {
     void sendEmailNotification(Long userId, String subject, String content);
     List<NotificationResponseDto> getUnreadNotifications(Long userId);
     void markAsRead(Long userId, Long notificationId);
+    List<NotificationResponseDto> getNotifications(Long userId);
 }
