@@ -4,6 +4,7 @@ import com.popflix.domain.notification.enums.NotificationType;
 import com.popflix.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,4 +20,5 @@ public class ReviewCreatedEvent {
     private final NotificationType type;
     private final User reviewer;
     private final String reviewerNickname;
+    private final User targetUser;
 }

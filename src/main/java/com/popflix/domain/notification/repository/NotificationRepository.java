@@ -29,4 +29,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "AND n.isDeleted = false " +
             "ORDER BY n.createAt ASC")
     List<Notification> findByStatus(@Param("status") NotificationStatus status);
+
+    @Query("SELECT n FROM Notification n " +
+            "WHERE n.user.userId = :userId " +
+            "AND n.isDeleted = false " +
+            "ORDER BY n.createAt DESC")
+    List<Notification> findAllByUserId(@Param("userId") Long userId);
 }

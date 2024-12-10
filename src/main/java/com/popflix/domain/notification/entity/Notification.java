@@ -1,4 +1,3 @@
-// domain.notification.entity.Notification.java
 package com.popflix.domain.notification.entity;
 
 import com.popflix.common.entity.BaseSoftDeleteEntity;
@@ -24,18 +23,24 @@ public class Notification extends BaseSoftDeleteEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user;                // 알림을 받는 사용자
+
+    @Column(name = "movie_id")
+    private Long movieId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewer_id")
-    private User reviewer;
+    private User reviewer;            // 리뷰 작성자
+
+    @Column(name = "target_id")
+    private Long targetId;            // 리뷰 또는 포토리뷰 ID
 
     @Column(length = 1000, nullable = false)
-    private String content;
+    private String content;           // 알림 내용
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private NotificationType type;
+    private NotificationType type;    // 알림 타입 (리뷰/포토리뷰)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -46,23 +51,26 @@ public class Notification extends BaseSoftDeleteEntity {
     private NotificationStatus status;
 
     @Column(nullable = false)
-    private boolean isRead;
+    private boolean isRead;           // 읽음 여부
 
     @Builder
     public Notification(
-            NotificationType type,
-            NotificationChannel channel,
-            String content,
             User user,
-            User reviewer
-    ) {
+            Long movieId,
+            User reviewer,
+            Long targetId,
+            String content,
+            NotificationType type,
+            NotificationChannel channel) {
+        this.user = user;
+        this.movieId = movieId;
+        this.reviewer = reviewer;
+        this.targetId = targetId;
+        this.content = content;
         this.type = type;
         this.channel = channel;
-        this.content = content;
         this.status = NotificationStatus.PENDING;
         this.isRead = false;
-        this.user = user;
-        this.reviewer = reviewer;
     }
 
     public void markAsRead() {

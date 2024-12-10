@@ -8,11 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GetMoviePosterResponseDto {
     private Long id;
+    private String movieTitle;
     private String poster;
 
     public GetMoviePosterResponseDto(Movie movie) {
         this.id = movie.getId();
         this.poster = movie.getPosterPath();
+        this.movieTitle = movie.getTitle();
     }
 }
 

@@ -14,7 +14,8 @@ public class GetMyStorageResponseDto {
     private Long id;
     private String storageName;
     private Boolean isPublic;
-    private byte[] storageImage;
+    private String storageImage;
+    private String overview;
     private Long likeCount;
     private Long movieCount;
     private Long userId;
@@ -25,6 +26,7 @@ public class GetMyStorageResponseDto {
         this.storageName = storage.getStorageName();
         this.isPublic = storage.getIsPublic();
         this.storageImage = storage.getStorageImage();
+        this.overview = storage.getStorageOverview();
         this.likeCount = storage.getLikeCount();
         this.movieCount = storage.getMovieCount();
         this.userId = storage.getUser().getUserId();

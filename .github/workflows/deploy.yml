@@ -11,7 +11,18 @@ env:
   ECR_REPOSITORY: my-production-repository
   ECS_SERVICE: my-production-service
   ECS_CLUSTER: my-production-cluster1
-  ECS_TASK_DEFINITION: popflix-task:1  # 변경된 부분
+  ECS_TASK_DEFINITION: popflix-task:49  # 변경된 부분1
+  MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+  MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+  TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+  NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
 
 permissions:
   contents: read
