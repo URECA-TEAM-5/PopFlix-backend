@@ -37,4 +37,12 @@ public class NotificationController {
         notificationService.markAsRead(userId, notificationId);
         return ApiUtil.success(null);
     }
+
+    @GetMapping
+    public ApiUtil.ApiSuccess<List<NotificationResponseDto>> getNotifications(
+            @RequestParam Long userId) {
+        List<NotificationResponseDto> notifications =
+                notificationService.getNotifications(userId);
+        return ApiUtil.success(notifications);
+    }
 }
