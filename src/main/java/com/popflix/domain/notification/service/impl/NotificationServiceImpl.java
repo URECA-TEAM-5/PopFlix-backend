@@ -158,4 +158,11 @@ public class NotificationServiceImpl implements NotificationService {
 
         notification.markAsRead();
     }
+
+    @Override
+    public List<NotificationResponseDto> getNotifications(Long userId) {
+        return notificationRepository.findAllByUserId(userId).stream()
+                .map(NotificationResponseDto::from)
+                .collect(Collectors.toList());
+    }
 }
