@@ -27,22 +27,14 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             """)
     Page<Movie> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-
     @Query("""
-                SELECT m FROM Movie m
-                JOIN m.movieGenres mg
-                JOIN mg.genre g
-                WHERE g.name = :genre
-            """)
-    Page<Movie> findByGenre(@Param("genre") String genre, Pageable pageable);
-
-
-    @Query(value = """
             SELECT m
               FROM Movie m
-             ORDER BY m.id ASC
+              JOIN m.movieGenres mg
+              JOIN mg.genre g
+             WHERE g.name = :genre
             """)
-    Page<Movie> findAllMovieInfo(Pageable pageable);
+    Page<Movie> findByGenre(@Param("genre") String genre, Pageable pageable);
 
     Optional<Movie> findByTitle(String title);
 }
