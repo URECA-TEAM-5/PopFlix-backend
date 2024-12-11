@@ -12,7 +12,9 @@ import com.popflix.domain.storage.repository.MovieStorageRepository;
 import com.popflix.domain.storage.repository.StorageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,8 +68,19 @@ public class MovieServiceImpl implements MovieService {
 
     // 영화 조회(장르별)
     @Override
-    public Page<GetMovieListResponseDto> getMovieListByGenre(String genre, Pageable pageable, Long userId) {
-        Page<Movie> movies = movieRepository.findByGenre(genre, pageable);
+    public Page<GetMovieListResponseDto> getMovieListByGenre(String genre, Pageable pageable, Long userId, String sort) {
+        Sort sorting;
+        if ("popular".equalsIgnoreCase(sort)) {
+            sorting = Sort.by(Sort.Direction.DESC, "likeCount"); // 평점 내림차순
+        } else if ("newest".equalsIgnoreCase(sort)) {
+            sorting = Sort.by(Sort.Direction.DESC, "releaseDate"); // 출시일 내림차순
+        } else {
+            throw new IllegalArgumentException("Invalid sort type. Allowed values: 'popular', 'newest'. Provided: " + sort);
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sorting);
+
+        Page<Movie> movies = movieRepository.findByGenre(genre, sortedPageable);
 
         return movies.map(movie -> {
             Double averageRating = calculateAverageRating(movie.getId());
@@ -78,8 +91,19 @@ public class MovieServiceImpl implements MovieService {
 
     // 영화 조회(전체)
     @Override
-    public Page<GetMovieListResponseDto> getAllMovies(Pageable pageable, Long userId) {
-        Page<Movie> movies = movieRepository.findAllMovieInfo(pageable);
+    public Page<GetMovieListResponseDto> getAllMovies(Pageable pageable, Long userId, String sort) {
+        Sort sorting;
+        if ("popular".equalsIgnoreCase(sort)) {
+            sorting = Sort.by(Sort.Direction.DESC, "likeCount"); // 인기순
+        } else if ("newest".equalsIgnoreCase(sort)) {
+            sorting = Sort.by(Sort.Direction.DESC, "releaseDate"); // 최신순
+        } else {
+            throw new IllegalArgumentException("Invalid sort type. Allowed values: 'popular', 'newest'. Provided: " + sort);
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sorting);
+
+        Page<Movie> movies = movieRepository.findAll(sortedPageable);
 
         return movies.map(movie -> {
             Double averageRating = calculateAverageRating(movie.getId());

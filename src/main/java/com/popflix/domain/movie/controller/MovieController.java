@@ -82,6 +82,7 @@ public class MovieController {
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(defaultValue = "newest") String sort,
             Pageable pageable) {
 
         Page<GetMovieListResponseDto> movieList;
@@ -91,10 +92,10 @@ public class MovieController {
             movieList = movieService.getMovieListByKeyword(keyword, pageable, userId);
         } else if (genre != null && !genre.trim().isEmpty()) {
             // 장르별 영화 검색
-            movieList = movieService.getMovieListByGenre(genre, pageable, userId);
+            movieList = movieService.getMovieListByGenre(genre, pageable, userId, sort);
         } else {
             // 전체 영화 조회
-            movieList = movieService.getAllMovies(pageable, userId);
+            movieList = movieService.getAllMovies(pageable, userId, sort);
         }
 
         return ApiUtil.success(movieList);
