@@ -76,7 +76,8 @@ public class NotificationServiceImpl implements NotificationService {
                 event.getType() == NotificationType.NEW_REVIEW ? "리뷰" : "포토리뷰",
                 event.getReviewContent());
 
-        Notification notification = Notification.builder()
+        // SSE 알림 전송
+        Notification sseNotification = Notification.builder()
                 .user(event.getTargetUser())
                 .movieId(event.getMovieId())
                 .reviewer(event.getReviewer())
@@ -86,28 +87,57 @@ public class NotificationServiceImpl implements NotificationService {
                 .channel(NotificationChannel.SSE)
                 .build();
 
-        notification = notificationRepository.save(notification);
-        final Notification savedNotification = notification;
+        sseNotification = notificationRepository.save(sseNotification);
+        sendSseNotification(sseNotification, event.getTargetUser().getUserId());
 
-        if (emitterService.exists(event.getTargetUser().getUserId())) {
+        // 이메일 알림 전송
+        Notification emailNotification = Notification.builder()
+                .user(event.getTargetUser())
+                .movieId(event.getMovieId())
+                .reviewer(event.getReviewer())
+                .targetId(event.getReviewId())
+                .content(content)
+                .type(event.getType())
+                .channel(NotificationChannel.EMAIL)
+                .build();
+
+        emailNotification = notificationRepository.save(emailNotification);
+        sendEmailNotification(emailNotification, "새로운 리뷰가 등록되었습니다.", content);
+    }
+
+    private void sendSseNotification(Notification notification, Long userId) {
+        if (emitterService.exists(userId)) {
             try {
-                emitterService.get(event.getTargetUser().getUserId()).ifPresent(emitter -> {
+                emitterService.get(userId).ifPresent(emitter -> {
                     try {
                         emitter.send(SseEmitter.event()
                                 .name("notification")
-                                .data(NotificationResponseDto.from(savedNotification)));
-                        savedNotification.markAsSent();
+                                .data(NotificationResponseDto.from(notification)));
+                        notification.markAsSent();
                     } catch (IOException e) {
-                        savedNotification.markAsFailed();
-                        emitterService.remove(event.getTargetUser().getUserId());
+                        notification.markAsFailed();
+                        emitterService.remove(userId);
                         throw new NotificationException("알림 전송 실패", e);
                     }
                 });
             } catch (Exception e) {
-                savedNotification.markAsFailed();
-                log.error("Failed to send notification to user: {}",
-                        event.getTargetUser().getUserId(), e);
+                notification.markAsFailed();
+                log.error("Failed to send notification to user: {}", userId, e);
             }
+        }
+    }
+
+    private void sendEmailNotification(Notification notification, String subject, String content) {
+        try {
+            emailService.sendEmail(EmailRequestDto.builder()
+                    .toEmail(notification.getUser().getEmail())
+                    .subject(subject)
+                    .content(content)
+                    .build());
+            notification.markAsSent();
+        } catch (Exception e) {
+            notification.markAsFailed();
+            throw new NotificationException("이메일 전송에 실패했습니다.", e);
         }
     }
 
@@ -125,18 +155,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         notification = notificationRepository.save(notification);
-
-        try {
-            emailService.sendEmail(EmailRequestDto.builder()
-                    .toEmail(user.getEmail())
-                    .subject(subject)
-                    .content(content)
-                    .build());
-            notification.markAsSent();
-        } catch (Exception e) {
-            notification.markAsFailed();
-            throw new NotificationException("이메일 전송에 실패했습니다.", e);
-        }
+        sendEmailNotification(notification, subject, content);
     }
 
     @Override
