@@ -17,7 +17,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 import com.popflix.auth.token.TokenProvider;
 
 import java.io.IOException;
@@ -32,6 +31,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Value("${app.auth.cookie.domain}")
     private String domain;
@@ -74,14 +76,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(UserNotFoundException::new);
 
-        String targetUrl = user.getNickname() == null ?
-                "/auth/register" : "/";
+        // 성별이나 장르 정보가 없으면 추가 정보 입력 페이지로 리다이렉트
+        String targetUrl = (user.getGender() == null || user.getUserGenres().isEmpty()) ?
+                frontendUrl + "/AddUserInfo" :
+                frontendUrl;
 
-        String redirectUrl = UriComponentsBuilder.fromUriString(targetUrl)
-                .queryParam("isNewUser", user.getNickname() == null)
-                .build().toUriString();
+        log.info("Frontend URL: {}", frontendUrl);
+        log.info("User nickname: {}", user.getNickname());
+        log.info("Target URL for redirect: {}", targetUrl);
 
-        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     private void addTokenCookie(HttpServletResponse response, String name, String value, int maxAge) {
