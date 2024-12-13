@@ -3,12 +3,14 @@ package com.popflix.domain.storage.controller;
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
 import com.popflix.domain.storage.dto.UpdateStorageRequestDto;
+import com.popflix.domain.storage.dto.WeeklyTopStorageDto;
 import com.popflix.domain.storage.service.StorageLikeService;
 import com.popflix.domain.storage.service.StorageService;
 import com.popflix.global.util.ApiUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -123,6 +125,13 @@ public class StorageController {
     public ApiUtil.ApiSuccess<?> deleteStorage(@PathVariable Long storageId, @RequestParam Long userId) {
         storageService.deleteStorage(storageId, userId);
         return ApiUtil.success("보관함이 삭제되었습니다.");
+    }
+
+    // 주차별 좋아요 높은 보관함
+    @GetMapping("/weekly-top")
+    public ApiUtil.ApiSuccess<?> getWeeklyTopStorages() {
+        List<WeeklyTopStorageDto> topStorages = storageService.getWeeklyTopStorages();
+        return ApiUtil.success(topStorages);
     }
 
 }

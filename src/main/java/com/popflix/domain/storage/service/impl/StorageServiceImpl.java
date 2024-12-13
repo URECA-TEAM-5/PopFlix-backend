@@ -11,7 +11,6 @@ import com.popflix.domain.storage.entity.Storage;
 import com.popflix.domain.storage.entity.StorageLike;
 import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateMovieException;
-import com.popflix.domain.storage.exception.DuplicateStorageNameException;
 import com.popflix.domain.storage.exception.StorageNotFoundException;
 import com.popflix.domain.storage.repository.MovieStorageRepository;
 import com.popflix.domain.storage.repository.StorageLikeRepository;
@@ -21,6 +20,7 @@ import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StorageServiceImpl implements StorageService {
@@ -38,7 +38,6 @@ public class StorageServiceImpl implements StorageService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
     private final MovieStorageRepository movieStorageRepository;
-
 
     // 보관함 생성
     @Transactional
@@ -264,5 +263,13 @@ public class StorageServiceImpl implements StorageService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<WeeklyTopStorageDto> getWeeklyTopStorages() {
+        List<WeeklyTopStorageDto> results = storageRepository.findWeeklyTopStorages();
+        if (results.isEmpty()) {
+            log.info("주간 워치리스트를 찾을 수 없습니다");
+        }
+        return results;
+    }
 
 }
