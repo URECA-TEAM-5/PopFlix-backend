@@ -90,18 +90,12 @@ public class MovieServiceImpl implements MovieService {
     // 영화 조회(전체)
     @Override
     public Page<GetMovieListResponseDto> getAllMovies(Pageable pageable, Long userId, String sort) {
-        Sort sorting;
-        if ("popular".equalsIgnoreCase(sort)) {
-            sorting = Sort.by(Sort.Direction.DESC, "likeCount"); // 인기순
-        } else if ("newest".equalsIgnoreCase(sort)) {
-            sorting = Sort.by(Sort.Direction.DESC, "releaseDate"); // 최신순
-        } else {
-            throw new IllegalArgumentException("Invalid sort type. Allowed values: 'popular', 'newest'. Provided: " + sort);
-        }
+        Sort sorting = "popular".equalsIgnoreCase(sort)
+                ? Sort.by(Sort.Direction.DESC, "likeCount")
+                : Sort.by(Sort.Direction.DESC, "releaseDate");
 
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sorting);
-
-        Page<Movie> movies = movieRepository.findAll(sortedPageable);
+        Page<Movie> movies = movieRepository.findAllWithReleaseDateBeforeNow(sortedPageable);
 
         return movies.map(movie -> {
             Double averageRating = calculateAverageRating(movie.getId());
