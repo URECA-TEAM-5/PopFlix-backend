@@ -37,4 +37,4 @@ out/
 .vscode/
 
 # 환경별 설정 파일 무시
-#src/main/resourc/es/application*.properties
+src/main/resourc/es/application*.properties
