@@ -21,6 +21,9 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
     @Value("${app.auth.cookie.domain}")
     private String domain;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     private static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 
@@ -33,7 +36,9 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
         deleteCookie(response, ACCESS_TOKEN_COOKIE_NAME);
         deleteCookie(response, REFRESH_TOKEN_COOKIE_NAME);
 
-        String targetUrl = UriComponentsBuilder.fromUriString("/auth/login")
+        // 프론트엔드의 로그인 실패 페이지로 리다이렉트
+        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl)
+                .path("/login")
                 .queryParam("error", exception.getLocalizedMessage())
                 .build().toUriString();
 

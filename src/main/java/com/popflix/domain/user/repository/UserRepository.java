@@ -13,7 +13,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-    Optional<User> findBySocialId(String socialId);
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.userGenres WHERE u.socialId = :socialId")
+    Optional<User> findBySocialId(@Param("socialId") String socialId);
     Optional<User> findByNickname(String nickname);
     Optional<User> findByAuthTypeAndSocialId(AuthType authType, String socialId);
     boolean existsByEmail(String email);

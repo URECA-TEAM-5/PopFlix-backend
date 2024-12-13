@@ -34,7 +34,7 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .secure(secure)
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(accessTokenExpiry)
                 .build();
 
@@ -47,7 +47,7 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .secure(secure)
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(refreshTokenExpiry)
                 .build();
 
@@ -60,7 +60,7 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .secure(secure)
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(0)
                 .build();
 
@@ -73,7 +73,7 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .secure(secure)
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(0)
                 .build();
 
