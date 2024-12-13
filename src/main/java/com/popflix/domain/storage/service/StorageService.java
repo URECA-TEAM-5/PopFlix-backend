@@ -2,9 +2,6 @@ package com.popflix.domain.storage.service;
 
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.storage.dto.*;
-import com.popflix.domain.storage.entity.Storage;
-
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface StorageService {
@@ -29,4 +26,6 @@ public interface StorageService {
     List<GetMyStorageResponseDto> getStoragesByCreator(Long userId);
 
     List<GetLikedStorageResponseDto> getLikedStorages(Long userId);
+
+    List<WeeklyTopStorageDto> getWeeklyTopStorages();
 }

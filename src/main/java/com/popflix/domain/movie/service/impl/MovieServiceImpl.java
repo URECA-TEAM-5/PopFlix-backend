@@ -8,8 +8,6 @@ import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.movie.repository.RatingRepository;
 import com.popflix.domain.movie.service.MovieService;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
-import com.popflix.domain.storage.repository.MovieStorageRepository;
-import com.popflix.domain.storage.repository.StorageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
