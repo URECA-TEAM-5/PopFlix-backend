@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import com.popflix.auth.token.TokenProvider;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -85,16 +87,38 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         log.info("User nickname: {}", user.getNickname());
         log.info("Target URL for redirect: {}", targetUrl);
 
+        // 디버깅용 로그 추가
+        Collection<String> headers = response.getHeaders("Set-Cookie");
+        headers.forEach(header -> log.info("Response Set-Cookie header: {}", header));
+
+        // 디버깅용 헤더 추가
+        response.addHeader("X-Debug-Cookie-Domain", domain);
+        response.addHeader("X-Debug-Cookie-Secure", String.valueOf(secure));
+
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     private void addTokenCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setDomain(domain);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(secure);
-        cookie.setMaxAge(maxAge);
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .domain(domain)
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(maxAge)
+                .build();
+
+        // 디버깅용 로그 추가
+        log.info("Setting cookie: name={}, domain={}, path={}, secure={}, httpOnly={}, sameSite={}, maxAge={}",
+                name, cookie.getDomain(), cookie.getPath(),
+                cookie.isSecure(), cookie.isHttpOnly(),
+                cookie.getSameSite(), cookie.getMaxAge());
+        log.info("Complete cookie string: {}", cookie.toString());
+
+        // multiple Set-Cookie 헤더 추가
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        // 디버깅용 헤더 추가
+        response.addHeader("X-Debug-" + name, cookie.toString());
     }
 }

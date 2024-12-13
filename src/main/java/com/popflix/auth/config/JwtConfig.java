@@ -45,7 +45,6 @@ public class JwtConfig {
 
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // CSRF 보호 비활성화
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
@@ -61,7 +60,8 @@ public class JwtConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler(oAuth2AuthenticationFailureHandler))
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
+                        .loginPage("https://popflix.site"))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp
@@ -75,23 +75,15 @@ public class JwtConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Collections.singletonList(allowedOrigins));
+        configuration.setAllowedOriginPatterns(Collections.singletonList(allowedOrigins));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "X-CSRF-TOKEN",
-                "Accept",
-                "Origin",
-                "X-Requested-With",
-                "Access-Control-Request-Method",
-                "Access-Control-Request-Headers"
-        ));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("*"));  // 모든 헤더 허용
         configuration.setExposedHeaders(Arrays.asList(
+                "Set-Cookie",
                 "Authorization",
                 "X-CSRF-TOKEN"
         ));
-        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
