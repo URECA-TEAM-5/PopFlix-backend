@@ -1,15 +1,20 @@
 package com.popflix.domain.storage.controller;
 
+import com.popflix.auth.dto.UserInfoDetails;
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
+import com.popflix.domain.storage.dto.GetStorageResponseDto;
 import com.popflix.domain.storage.dto.UpdateStorageRequestDto;
 import com.popflix.domain.storage.dto.WeeklyTopStorageDto;
 import com.popflix.domain.storage.service.StorageLikeService;
 import com.popflix.domain.storage.service.StorageService;
+import com.popflix.domain.user.entity.User;
 import com.popflix.global.util.ApiUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 import java.util.Map;
 
@@ -66,12 +71,17 @@ public class StorageController {
     }
 
     // 보관함 목록 조회
-    @GetMapping("/{userId}")
+    @GetMapping
     public ApiUtil.ApiSuccess<?> getStorageList(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "newest") String sort // default: 최신순
+            @RequestParam(defaultValue = "newest") String sort, // default: 최신순
+            @AuthenticationPrincipal UserInfoDetails user // 현재 로그인한 유저 정보
     ) {
-        return ApiUtil.success(storageService.getStorageList(userId, sort));
+        Long currentUserId = (user != null) ? user.getId() : null; // 로그인 O: isliked 확인 가능 / 로그인 X: 전체 목록 조회 가능
+
+        // 서비스 호출
+        List<GetStorageResponseDto> storageList = storageService.getStorageList(currentUserId, sort);
+
+        return ApiUtil.success(storageList);
     }
 
     // 보관함 상세 조회

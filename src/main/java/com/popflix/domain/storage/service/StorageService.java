@@ -9,7 +9,7 @@ public interface StorageService {
 
     void changeStatus(Long storageId, Long userId);
 
-    List<GetStorageResponseDto> getStorageList(Long userId, String sort);
+    List<GetStorageResponseDto> getStorageList(Long currentUserId, String sort);
 
     GetStorageDetailResponseDto getStorageDetail(Long storageId, Long userId);
 

@@ -78,7 +78,7 @@ public class StorageServiceImpl implements StorageService {
 
     // 보관함 목록 조회
     @Override
-    public List<GetStorageResponseDto> getStorageList(Long userId, String sort) {
+    public List<GetStorageResponseDto> getStorageList(Long currentUserId, String sort) {
         // 정렬 기준에 따른 Sort 객체 생성
         Sort sorting;
         if ("popular".equalsIgnoreCase(sort)) {
@@ -89,9 +89,14 @@ public class StorageServiceImpl implements StorageService {
             throw new IllegalArgumentException("Invalid sort type: " + sort);
         }
 
-        // 정렬된 보관함 목록 조회
-        List<Storage> storages = storageRepository.findAll(sorting);
+        // 로그인한 유저가 있다면 그 유저의 정보 가져오기
+        boolean isUserLoggedIn = currentUserId != null;
+        log.info("현재 사용자 로그인 여부!!!!!: " + currentUserId);
 
+        List<Storage> storages;
+        storages = storageRepository.findAll(sorting);
+
+        // 보관함 목록 변환
         return storages.stream()
                 .map(storage -> GetStorageResponseDto.builder()
                         .id(storage.getId())
@@ -99,7 +104,7 @@ public class StorageServiceImpl implements StorageService {
                         .username(storage.getUser().getName())
                         .movieCount(storage.getMovieCount())
                         .likeCount(storage.getLikeCount())
-                        .isLiked(storageLikeRepository.existsByStorage_IdAndUser_UserIdAndIsLiked(storage.getId(), userId, true))
+                        .isLiked(isUserLoggedIn ? storageLikeRepository.existsByStorage_IdAndUser_UserIdAndIsLiked(storage.getId(), currentUserId, true) : false)
                         .storageImage(storage.getStorageImage())
                         .build())
                 .collect(Collectors.toList());
