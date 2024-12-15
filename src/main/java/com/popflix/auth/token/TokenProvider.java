@@ -118,14 +118,14 @@ public class TokenProvider {
             return bearerToken.substring(7);
         }
 
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (COOKIE_ACCESS_TOKEN_KEY.equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
+//        Cookie[] cookies = request.getCookies();
+//        if (cookies != null) {
+//            for (Cookie cookie : cookies) {
+//                if (COOKIE_ACCESS_TOKEN_KEY.equals(cookie.getName())) {
+//                    return cookie.getValue();
+//                }
+//            }
+//        }
         return null;
     }
 
