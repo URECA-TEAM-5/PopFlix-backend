@@ -43,8 +43,27 @@ public class JwtConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         JwtTokenFilter jwtTokenFilter = new JwtTokenFilter(tokenProvider, redisTemplate);
 
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOriginPatterns(Collections.singletonList(allowedOrigins));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Cookie",
+                "Accept",
+                "Set-Cookie"
+        ));
+        corsConfiguration.setExposedHeaders(Arrays.asList(
+                "Set-Cookie",
+                "Authorization",
+                "X-CSRF-TOKEN"
+        ));
+        corsConfiguration.setMaxAge(3600L);
+
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(request -> corsConfiguration))
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
@@ -70,25 +89,6 @@ public class JwtConfig {
                                 .policy("camera=(), microphone=(), geolocation=(), payment=()")));
 
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Collections.singletonList(allowedOrigins));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedHeaders(Arrays.asList("*"));  // 모든 헤더 허용
-        configuration.setExposedHeaders(Arrays.asList(
-                "Set-Cookie",
-                "Authorization",
-                "X-CSRF-TOKEN"
-        ));
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
     @Bean

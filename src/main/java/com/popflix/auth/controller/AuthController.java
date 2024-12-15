@@ -42,7 +42,7 @@ public class AuthController {
     private static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 
-    @GetMapping("/login/urls")
+    @GetMapping("/login")
     public ResponseEntity<?> getLoginUrls() {
         Map<String, OAuthProviderInfo> providers = new HashMap<>();
 
@@ -139,6 +139,11 @@ public class AuthController {
     }
 
     private void addTokenCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        // AccessToken 쿠키는 더 이상 추가하지 않도록 수정
+        if (ACCESS_TOKEN_COOKIE_NAME.equals(name)) {
+            return;
+        }
+
         Cookie cookie = new Cookie(name, value);
         cookie.setDomain(domain);
         cookie.setPath("/");
