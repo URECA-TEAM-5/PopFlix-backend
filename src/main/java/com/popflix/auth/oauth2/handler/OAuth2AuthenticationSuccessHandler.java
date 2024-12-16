@@ -70,8 +70,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         log.info("Generated Access Token: Bearer {}", accessToken);
         String refreshToken = tokenProvider.createRefreshToken(newAuth);
 
-        addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, accessToken,
-                (int) (tokenProvider.getAccessTokenValidityTime() / 1000));
+//        addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, accessToken,
+//                (int) (tokenProvider.getAccessTokenValidityTime() / 1000));
         addTokenCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken,
                 (int) (tokenProvider.getRefreshTokenValidityTime() / 1000));
 
@@ -100,7 +100,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private void addTokenCookie(HttpServletResponse response, String name, String value, int maxAge) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
-                .domain(domain)
+//                .domain(domain)
                 .path("/")
                 .httpOnly(true)
                 .secure(true)
@@ -119,6 +119,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.addHeader("Set-Cookie", cookie.toString());
 
         // 디버깅용 헤더 추가
-        response.addHeader("X-Debug-" + name, cookie.toString());
+//        response.addHeader("X-Debug-" + name, cookie.toString());
     }
 }
