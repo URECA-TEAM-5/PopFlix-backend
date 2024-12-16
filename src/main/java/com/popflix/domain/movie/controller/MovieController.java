@@ -86,19 +86,21 @@ public class MovieController {
             Pageable pageable) {
 
         Page<GetMovieListResponseDto> movieList;
+        Page<GetSearchResultResponseDto> searchResult;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             // 키워드 기반 검색
-            movieList = movieService.getMovieListByKeyword(keyword, pageable, userId);
+            searchResult = movieService.getMovieListByKeyword(keyword, pageable, userId);
+            return ApiUtil.success(searchResult);
         } else if (genre != null && !genre.trim().isEmpty()) {
             // 장르별 영화 검색
             movieList = movieService.getMovieListByGenre(genre, pageable, userId, sort);
+            return ApiUtil.success(movieList);
         } else {
             // 전체 영화 조회
             movieList = movieService.getAllMovies(pageable, userId, sort);
+            return ApiUtil.success(movieList);
         }
-
-        return ApiUtil.success(movieList);
     }
 
     // 영화 상세 조회
