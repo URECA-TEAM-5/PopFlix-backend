@@ -64,12 +64,12 @@ public class AuthController {
     @GetMapping("/default-profile-images")
     public ResponseEntity<?> getDefaultProfileImages() {
         List<ProfileImage> defaultImages = Arrays.asList(
-                new ProfileImage("profile1", String.format("https://%s.s3.amazonaws.com/defaults/profile1.png", bucket)),
-                new ProfileImage("profile2", String.format("https://%s.s3.amazonaws.com/defaults/profile2.png", bucket)),
-                new ProfileImage("profile3", String.format("https://%s.s3.amazonaws.com/defaults/profile3.png", bucket)),
-                new ProfileImage("profile4", String.format("https://%s.s3.amazonaws.com/defaults/profile4.png", bucket)),
-                new ProfileImage("profile5", String.format("https://%s.s3.amazonaws.com/defaults/profile5.png", bucket)),
-                new ProfileImage("profile6", String.format("https://%s.s3.amazonaws.com/defaults/profile6.png", bucket))
+                new ProfileImage("profile_1", String.format("https://%s.s3.amazonaws.com/profile_1.svg", bucket)),
+                new ProfileImage("profile_2", String.format("https://%s.s3.amazonaws.com/profile_2.svg", bucket)),
+                new ProfileImage("profile_3", String.format("https://%s.s3.amazonaws.com/profile_3.svg", bucket)),
+                new ProfileImage("profile_4", String.format("https://%s.s3.amazonaws.com/profile_4.svg", bucket)),
+                new ProfileImage("profile_5", String.format("https://%s.s3.amazonaws.com/profile_5.svg", bucket)),
+                new ProfileImage("profile_6", String.format("https://%s.s3.amazonaws.com/profile_6.svg", bucket))
         );
 
         return ResponseEntity.ok(ApiUtil.success(defaultImages));
@@ -121,7 +121,11 @@ public class AuthController {
         addTokenCookie(response, REFRESH_TOKEN_COOKIE_NAME, newRefreshToken,
                 (int) (tokenProvider.getRefreshTokenValidityTime() / 1000));
 
-        return ResponseEntity.ok(ApiUtil.success("토큰이 갱신되었습니다."));
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("message", "토큰이 갱신되었습니다.");
+        responseData.put("accessToken", newAccessToken);
+
+        return ResponseEntity.ok(ApiUtil.success(responseData));
     }
 
     @GetMapping("/me")
