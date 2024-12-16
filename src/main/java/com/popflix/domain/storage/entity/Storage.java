@@ -95,4 +95,8 @@ public class Storage extends BaseSoftDeleteEntity {
     public void changeStorageOverview(String newOverview) {
         this.storageOverview = newOverview;
     }
+
+    public void changeStorageImage(String newStorageImage) {
+        this.storageImage = newStorageImage;
+    }
 }

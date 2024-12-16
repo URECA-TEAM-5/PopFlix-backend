@@ -8,13 +8,11 @@ import com.popflix.domain.storage.dto.UpdateStorageRequestDto;
 import com.popflix.domain.storage.dto.WeeklyTopStorageDto;
 import com.popflix.domain.storage.service.StorageLikeService;
 import com.popflix.domain.storage.service.StorageService;
-import com.popflix.domain.user.entity.User;
 import com.popflix.global.util.ApiUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +68,7 @@ public class StorageController {
         return ApiUtil.success("보관함 정보가 수정되었습니다.");
     }
 
-    // 보관함 목록 조회
+    // 보관함 목록 조회 <- 오류 발생
     @GetMapping
     public ApiUtil.ApiSuccess<?> getStorageList(
             @RequestParam(defaultValue = "newest") String sort, // default: 최신순

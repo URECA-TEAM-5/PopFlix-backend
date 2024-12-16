@@ -235,7 +235,7 @@ public class StorageServiceImpl implements StorageService {
         }
 
         if (requestDto.getNewStorageImage() != null && !requestDto.getNewStorageImage().isEmpty()) {
-            storage.changeStorageOverview(requestDto.getNewStorageImage());
+            storage.changeStorageImage(requestDto.getNewStorageImage());
         }
 
         storageRepository.save(storage);
