@@ -47,12 +47,9 @@ public class Storage extends BaseSoftDeleteEntity {
     @OneToMany(mappedBy = "storage", cascade = CascadeType.PERSIST)
     private List<StorageLike> storageLikes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "storage", cascade = CascadeType.PERSIST)
-    private List<LikeLog> likeLogs = new ArrayList<>();
-
 
     @Builder
-    public Storage(String storageName, byte[] storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages, List<StorageLike> storageLikes, List<LikeLog> likeLogs) {
+    public Storage(String storageName, byte[] storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages, List<StorageLike> storageLikes) {
         this.storageName = storageName;
         this.storageImage = storageImage;
         this.isPublic = isPublic;
@@ -62,7 +59,6 @@ public class Storage extends BaseSoftDeleteEntity {
         this.user = user;
         this.movieStorages = movieStorages;
         this.storageLikes = storageLikes;
-        this.likeLogs = likeLogs;
     }
 
     public void changeStatus() {

@@ -32,5 +32,14 @@ public class MonthlyTopStorageDto {
                 .map(GetMoviePosterResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public void setMovieCount(Long movieCount) {
+        this.movieCount = movieCount;
+
+    }
 }
 

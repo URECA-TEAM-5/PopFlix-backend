@@ -5,7 +5,7 @@ import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
 import com.popflix.domain.storage.dto.GetStorageResponseDto;
 import com.popflix.domain.storage.dto.UpdateStorageRequestDto;
-import com.popflix.domain.storage.dto.WeeklyTopStorageDto;
+import com.popflix.domain.storage.dto.MonthlyTopStorageDto;
 import com.popflix.domain.storage.service.StorageLikeService;
 import com.popflix.domain.storage.service.StorageService;
 import com.popflix.global.util.ApiUtil;
@@ -138,13 +138,13 @@ public class StorageController {
         return ApiUtil.success("보관함이 삭제되었습니다.");
     }
 
-    // 주차별 좋아요 높은 보관함
+    // 월 별 좋아요 높은 보관함
     @GetMapping("/monthly-top")
     public ApiUtil.ApiSuccess<?> getMonthlyTopStorages(
             @RequestParam int year,
             @RequestParam int month
     ) {
-        List<WeeklyTopStorageDto> storages = storageService.getMonthlyTopStorages(year, month);
+        List<MonthlyTopStorageDto> storages = storageService.getMonthlyTopStorages(year, month);
         return ApiUtil.success(storages);
     }
 
