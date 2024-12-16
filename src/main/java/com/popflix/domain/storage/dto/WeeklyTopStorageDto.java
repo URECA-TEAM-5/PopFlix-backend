@@ -18,7 +18,7 @@ public class WeeklyTopStorageDto {
     private String storageOverview;
     private Long likeCount;
     private Long movieCount;
-    private String storageImage;
+    private byte[] storageImage;
     private List<GetMoviePosterResponseDto> movies; // 영화 목록 추가
 
     public WeeklyTopStorageDto(Storage storage, List<Movie> movies) {
