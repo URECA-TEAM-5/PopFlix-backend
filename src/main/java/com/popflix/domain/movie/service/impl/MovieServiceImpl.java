@@ -54,15 +54,36 @@ public class MovieServiceImpl implements MovieService {
 
     // 영화 검색(키워드)
     @Override
-    public Page<GetMovieListResponseDto> getMovieListByKeyword(String keyword, Pageable pageable, Long userId) {
+    public Page<GetSearchResultResponseDto> getMovieListByKeyword(String keyword, Pageable pageable, Long userId) {
         Page<Movie> movies = movieRepository.findByKeyword(keyword, pageable);
 
         return movies.map(movie -> {
             Double averageRating = calculateAverageRating(movie.getId());
+
             Boolean isLiked = getIsLiked(userId, movie.getId());
-            return GetMovieListResponseDto.from(movie, averageRating, isLiked);
+
+            Long likeCount = movie.getLikeCount();
+
+            List<SimpleDto> cast = movie.getMovieCasts()
+                    .stream()
+                    .map(movieCast -> SimpleDto.fromCast(movieCast.getCast()))
+                    .toList();
+
+            List<SimpleDto> directors = movie.getMovieDirectors()
+                    .stream()
+                    .map(movieDirector -> SimpleDto.fromDirector(movieDirector.getDirector()))
+                    .toList();
+
+            List<SimpleDto> genres = movie.getMovieGenres()
+                    .stream()
+                    .map(movieGenre -> SimpleDto.fromGenre(movieGenre.getGenre()))
+                    .toList();
+
+            return GetSearchResultResponseDto.from(
+                    movie, averageRating, isLiked, likeCount, cast, directors, genres);
         });
     }
+
 
     // 영화 조회(장르별)
     @Override
