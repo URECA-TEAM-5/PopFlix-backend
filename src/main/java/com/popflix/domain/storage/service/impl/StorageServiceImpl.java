@@ -247,7 +247,7 @@ public class StorageServiceImpl implements StorageService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        List<Storage> storages = storageRepository.findByUser(user);
+        List<Storage> storages = storageRepository.findByUserAndIsDeletedFalse(user);
 
         List<GetMyStorageResponseDto> responseDtos = new ArrayList<>();
         for (Storage storage : storages) {
