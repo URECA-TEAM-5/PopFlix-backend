@@ -72,11 +72,15 @@ public class MovieApiServiceImpl implements MovieApiService {
                         for (Integer genreId : movieInfo.getGenreIds()) {
                             Genre genre = genreRepository.findById(Long.valueOf(genreId)).orElse(null);
                             if (genre != null) {
-                                MovieGenre movieGenre = MovieGenre.builder()
-                                        .movie(movie)
-                                        .genre(genre)
-                                        .build();
-                                movieGenreRepository.save(movieGenre); // MovieGenre 저장
+                                // 중복 저장 방지 코드 추가
+                                boolean exists = movieGenreRepository.existsByMovieAndGenre(movie, genre);
+                                if (!exists) {
+                                    MovieGenre movieGenre = MovieGenre.builder()
+                                            .movie(movie)
+                                            .genre(genre)
+                                            .build();
+                                    movieGenreRepository.save(movieGenre);
+                                }
                             }
                         }
                     }
@@ -135,6 +139,7 @@ public class MovieApiServiceImpl implements MovieApiService {
             }
         }
     }
+
 
     // 로그인하지 않은 유저에게 TMDB 이용 인기순으로 추천
     @Override

@@ -33,4 +33,5 @@ public interface StorageRepository extends JpaRepository<Storage, Long> {
     List<WeeklyTopStorageDto> findWeeklyTopStorages();
 
 
+    List<Storage> findByUserAndIsDeletedFalse(User user);
 }
