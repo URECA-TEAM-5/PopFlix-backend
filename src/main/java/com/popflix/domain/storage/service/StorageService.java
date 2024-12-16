@@ -2,6 +2,9 @@ package com.popflix.domain.storage.service;
 
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.storage.dto.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 
 public interface StorageService {
@@ -21,11 +24,11 @@ public interface StorageService {
 
     void deleteStorage(Long storageId, Long userId);
 
-    void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, Long userId);
+    void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, MultipartFile storageImage, Long userId) throws IOException;
 
     List<GetMyStorageResponseDto> getStoragesByCreator(Long userId);
 
     List<GetLikedStorageResponseDto> getLikedStorages(Long userId);
 
-    List<WeeklyTopStorageDto> getWeeklyTopStorages();
+    List<MonthlyTopStorageDto> getMonthlyTopStorages(int year, int month);
 }

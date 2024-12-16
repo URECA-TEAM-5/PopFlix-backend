@@ -5,14 +5,16 @@ import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.storage.dto.CreateStorageRequestDto;
 import com.popflix.domain.storage.dto.GetStorageResponseDto;
 import com.popflix.domain.storage.dto.UpdateStorageRequestDto;
-import com.popflix.domain.storage.dto.WeeklyTopStorageDto;
+import com.popflix.domain.storage.dto.MonthlyTopStorageDto;
 import com.popflix.domain.storage.service.StorageLikeService;
 import com.popflix.domain.storage.service.StorageService;
 import com.popflix.global.util.ApiUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -58,13 +60,14 @@ public class StorageController {
         return ApiUtil.success("영화가 보관함에서 삭제되었습니다.");
     }
 
-    // 보관함 이름 및 소개글 수정 기능
+    // 보관함 이름, 소개글, 보관함 이미지 수정 기능
     @PutMapping("/update/{storageId}")
     public ApiUtil.ApiSuccess<?> updateStorageDetails(
             @PathVariable Long storageId,
             @RequestBody UpdateStorageRequestDto requestDto,
-            @RequestParam Long userId) {
-        storageService.updateStorageDetails(storageId, requestDto, userId);
+            @RequestPart(value = "storageImage", required = false) MultipartFile storageImage,
+            @RequestParam Long userId) throws IOException {
+        storageService.updateStorageDetails(storageId, requestDto, storageImage, userId);
         return ApiUtil.success("보관함 정보가 수정되었습니다.");
     }
 
@@ -135,11 +138,14 @@ public class StorageController {
         return ApiUtil.success("보관함이 삭제되었습니다.");
     }
 
-    // 주차별 좋아요 높은 보관함
-    @GetMapping("/weekly-top")
-    public ApiUtil.ApiSuccess<?> getWeeklyTopStorages() {
-        List<WeeklyTopStorageDto> topStorages = storageService.getWeeklyTopStorages();
-        return ApiUtil.success(topStorages);
+    // 월 별 좋아요 높은 보관함
+    @GetMapping("/monthly-top")
+    public ApiUtil.ApiSuccess<?> getMonthlyTopStorages(
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        List<MonthlyTopStorageDto> storages = storageService.getMonthlyTopStorages(year, month);
+        return ApiUtil.success(storages);
     }
 
 }

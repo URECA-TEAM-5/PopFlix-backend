@@ -23,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -218,7 +220,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Transactional
     @Override
-    public void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, Long userId) {
+    public void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, MultipartFile storageImage, Long userId) throws IOException {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
 
@@ -234,8 +236,9 @@ public class StorageServiceImpl implements StorageService {
             storage.changeStorageOverview(requestDto.getNewOverview());
         }
 
-        if (requestDto.getNewStorageImage() != null && !requestDto.getNewStorageImage().isEmpty()) {
-            storage.changeStorageImage(requestDto.getNewStorageImage());
+        if (storageImage != null) {
+            byte[] byteStorageImage = storageImage.getBytes();
+            storage.updateStorageImage(byteStorageImage);
         }
 
         storageRepository.save(storage);
@@ -273,12 +276,30 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public List<WeeklyTopStorageDto> getWeeklyTopStorages() {
-        List<WeeklyTopStorageDto> results = storageRepository.findWeeklyTopStorages();
-        if (results.isEmpty()) {
-            log.info("주간 워치리스트를 찾을 수 없습니다");
+    public List<MonthlyTopStorageDto> getMonthlyTopStorages(int year, int month) {
+        List<StorageLikeCountDto> topStorages = storageLikeRepository.findTopStoragesByLike(year, month);
+
+        List<MonthlyTopStorageDto> responseDtos = new ArrayList<>();
+        for (StorageLikeCountDto storageLikeCountDto : topStorages) {
+            Long storageId = storageLikeCountDto.getStorageId();
+            Long likeCount = storageLikeCountDto.getLikeCount();
+
+            Storage storage = storageRepository.findById(storageId)
+                    .orElseThrow(() -> new StorageNotFoundException(storageId));
+
+            List<Movie> movies = storage.getMovies();
+
+            Long movieCount = (long) movies.size();
+
+            MonthlyTopStorageDto dto = new MonthlyTopStorageDto(storage, movies);
+            dto.setLikeCount(likeCount);
+            dto.setMovieCount(movieCount);
+
+            responseDtos.add(dto);
         }
-        return results;
+
+        return responseDtos;
     }
+
 
 }

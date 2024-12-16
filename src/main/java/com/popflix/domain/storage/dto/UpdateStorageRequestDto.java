@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class UpdateStorageRequestDto {
     private String newName;
     private String newOverview;
-    private String newStorageImage;
 }
