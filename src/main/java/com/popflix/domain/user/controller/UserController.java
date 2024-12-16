@@ -2,6 +2,7 @@ package com.popflix.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.popflix.auth.token.TokenProvider;
 import com.popflix.domain.personality.entity.Genre;
 import com.popflix.domain.user.dto.UserInfoDto;
 import com.popflix.domain.user.dto.UserPatchDto;
@@ -10,6 +11,8 @@ import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.enums.Role;
 import com.popflix.domain.user.service.UserService;
 import com.popflix.global.util.ApiUtil;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +30,22 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final ObjectMapper objectMapper;
+    private final TokenProvider tokenProvider;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(
             @RequestPart("data") String dataString,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            HttpServletRequest request) {
         try {
             UserRegistrationDto registrationDto = objectMapper.readValue(dataString, UserRegistrationDto.class);
-            UserInfoDto userInfo = userService.completeRegistration(registrationDto, profileImage);
+
+            // 토큰에서 직접 socialId 추출
+            String token = tokenProvider.resolveToken(request);
+            Claims claims = tokenProvider.parseToken(token);
+            String socialId = claims.getSubject();
+
+            UserInfoDto userInfo = userService.completeRegistration(registrationDto, profileImage, socialId);
             return ResponseEntity.ok(ApiUtil.success(userInfo));
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Invalid JSON format", e);

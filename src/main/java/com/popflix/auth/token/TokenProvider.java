@@ -126,6 +126,16 @@ public class TokenProvider {
 //                }
 //            }
 //        }
+
+        // refresh_token을 찾도록 수정
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refresh_token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
         return null;
     }
 
@@ -154,6 +164,11 @@ public class TokenProvider {
             }
 
             Claims claims = parseToken(token);
+            // 리프레시 토큰도 유효한 토큰으로 인정하도록 수정
+            String tokenType = claims.get("type", String.class);
+            if (!"access".equals(tokenType) && !"refresh".equals(tokenType)) {
+                return false;
+            }
             return !claims.getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
@@ -180,7 +195,7 @@ public class TokenProvider {
         return Boolean.TRUE.equals(redisTemplate.hasKey(REDIS_BLACKLIST_PREFIX + token));
     }
 
-    private Claims parseToken(String token) {
+    public Claims parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

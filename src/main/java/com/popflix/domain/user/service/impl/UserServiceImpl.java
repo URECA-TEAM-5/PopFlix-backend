@@ -65,13 +65,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserInfoDto completeRegistration(UserRegistrationDto registrationDto, MultipartFile profileImage) {
+    public UserInfoDto completeRegistration(UserRegistrationDto registrationDto, MultipartFile profileImage, String socialId) {
         Genre genre = genreRepository.findById(registrationDto.getGenreId())
                 .orElseThrow(InvalidGenreException::new);
 
-        User user = userRepository.findBySocialId(SecurityContextHolder.getContext()
-                        .getAuthentication().getName())
+        log.info("Attempting to find user with socialId: {}", socialId);  // 로그 추가
+
+        User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(UserNotFoundException::new);
+
+        log.info("Found user: {}", user.getSocialId());  // 로그 추가
 
         if (userRepository.existsByNickname(registrationDto.getNickname())) {
             throw new DuplicateNicknameException();

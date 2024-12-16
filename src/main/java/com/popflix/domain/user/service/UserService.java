@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UserService {
     User registerUser(SignUpDto signUpDto);
-    UserInfoDto completeRegistration(UserRegistrationDto registrationDto, MultipartFile profileImage);
+    UserInfoDto completeRegistration(UserRegistrationDto registrationDto, MultipartFile profileImage, String socialId);
     void updateUserGenres(Long userId, GenrePatchDto request);
     boolean isNicknameAvailable(String nickname);
     List<Genre> getAllGenres();
