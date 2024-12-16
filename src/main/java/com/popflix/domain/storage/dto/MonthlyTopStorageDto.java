@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class WeeklyTopStorageDto {
+public class MonthlyTopStorageDto {
     private Long id; // 보관함 ID 추가
     private String storageName;
     private String storageOverview;
@@ -21,7 +21,7 @@ public class WeeklyTopStorageDto {
     private byte[] storageImage;
     private List<GetMoviePosterResponseDto> movies; // 영화 목록 추가
 
-    public WeeklyTopStorageDto(Storage storage, List<Movie> movies) {
+    public MonthlyTopStorageDto(Storage storage, List<Movie> movies) {
         this.id = storage.getId();
         this.storageName = storage.getStorageName();
         this.storageOverview = storage.getStorageOverview();
