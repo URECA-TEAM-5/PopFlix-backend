@@ -273,12 +273,20 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public List<WeeklyTopStorageDto> getWeeklyTopStorages() {
-        List<WeeklyTopStorageDto> results = storageRepository.findWeeklyTopStorages();
-        if (results.isEmpty()) {
-            log.info("주간 워치리스트를 찾을 수 없습니다");
+    public List<WeeklyTopStorageDto> getMonthlyTopStorages(int year, int month) {
+        List<Storage> storages = storageRepository.findMonthlyTopStorages(year, month);
+
+        if (storages.isEmpty()) {
+            log.info("{}년 {}월 인기 워치리스트를 찾을 수 없습니다", year, month);
         }
-        return results;
+
+        return storages.stream()
+                .map(storage -> {
+                    List<Movie> movies = storage.getMovies(); // 보관함의 영화 목록 가져오기
+                    return new WeeklyTopStorageDto(storage, movies);
+                })
+                .collect(Collectors.toList());
     }
+
 
 }

@@ -27,5 +27,5 @@ public interface StorageService {
 
     List<GetLikedStorageResponseDto> getLikedStorages(Long userId);
 
-    List<WeeklyTopStorageDto> getWeeklyTopStorages();
+    List<WeeklyTopStorageDto> getMonthlyTopStorages(int year, int month);
 }

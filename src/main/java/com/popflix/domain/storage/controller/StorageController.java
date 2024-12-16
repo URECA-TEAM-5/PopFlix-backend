@@ -136,10 +136,13 @@ public class StorageController {
     }
 
     // 주차별 좋아요 높은 보관함
-    @GetMapping("/weekly-top")
-    public ApiUtil.ApiSuccess<?> getWeeklyTopStorages() {
-        List<WeeklyTopStorageDto> topStorages = storageService.getWeeklyTopStorages();
-        return ApiUtil.success(topStorages);
+    @GetMapping("/monthly-top")
+    public ApiUtil.ApiSuccess<?> getMonthlyTopStorages(
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        List<WeeklyTopStorageDto> storages = storageService.getMonthlyTopStorages(year, month);
+        return ApiUtil.success(storages);
     }
 
 }
