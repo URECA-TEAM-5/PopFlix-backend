@@ -16,7 +16,7 @@ public class GetStorageDetail2ResponseDto {
     private Long likeCount;
     private Boolean isLiked;
     private String overview;
-    private String storageImage;
+    private byte[] storageImage;
 
     public GetStorageDetail2ResponseDto(Storage storage, Long userId, boolean isLiked) {
         this.id = storage.getId();
