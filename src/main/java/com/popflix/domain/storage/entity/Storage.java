@@ -24,7 +24,9 @@ public class Storage extends BaseSoftDeleteEntity {
 
     private String storageName;
 
-    private String storageImage;
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB", nullable = true)
+    private byte[] storageImage;
 
     private Boolean isPublic;
 
@@ -45,8 +47,12 @@ public class Storage extends BaseSoftDeleteEntity {
     @OneToMany(mappedBy = "storage", cascade = CascadeType.PERSIST)
     private List<StorageLike> storageLikes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "storage", cascade = CascadeType.PERSIST)
+    private List<LikeLog> likeLogs = new ArrayList<>();
+
+
     @Builder
-    public Storage(String storageName, String storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages, List<StorageLike> storageLikes) {
+    public Storage(String storageName, byte[] storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages, List<StorageLike> storageLikes, List<LikeLog> likeLogs) {
         this.storageName = storageName;
         this.storageImage = storageImage;
         this.isPublic = isPublic;
@@ -56,6 +62,7 @@ public class Storage extends BaseSoftDeleteEntity {
         this.user = user;
         this.movieStorages = movieStorages;
         this.storageLikes = storageLikes;
+        this.likeLogs = likeLogs;
     }
 
     public void changeStatus() {
@@ -96,7 +103,9 @@ public class Storage extends BaseSoftDeleteEntity {
         this.storageOverview = newOverview;
     }
 
-    public void changeStorageImage(String newStorageImage) {
-        this.storageImage = newStorageImage;
+    public void updateStorageImage(byte[] multipartFile) {
+        if (multipartFile != null) {
+            this.storageImage = multipartFile;
+        }
     }
 }

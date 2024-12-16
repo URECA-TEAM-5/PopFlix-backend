@@ -23,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -218,7 +220,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Transactional
     @Override
-    public void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, Long userId) {
+    public void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, MultipartFile storageImage, Long userId) throws IOException {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
 
@@ -234,8 +236,9 @@ public class StorageServiceImpl implements StorageService {
             storage.changeStorageOverview(requestDto.getNewOverview());
         }
 
-        if (requestDto.getNewStorageImage() != null && !requestDto.getNewStorageImage().isEmpty()) {
-            storage.changeStorageImage(requestDto.getNewStorageImage());
+        if (storageImage != null) {
+            byte[] byteStorageImage = storageImage.getBytes();
+            storage.updateStorageImage(byteStorageImage);
         }
 
         storageRepository.save(storage);
