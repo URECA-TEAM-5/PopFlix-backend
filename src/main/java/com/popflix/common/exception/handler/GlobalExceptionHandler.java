@@ -1,6 +1,7 @@
 package com.popflix.common.exception.handler;
 
 import com.popflix.auth.exception.*;
+import com.popflix.domain.movie.exception.DuplicateRatingException;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.storage.exception.AccessStorageDeniedException;
 import com.popflix.domain.storage.exception.DuplicateMovieException;
@@ -130,6 +131,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DuplicateNicknameException.class)
     protected ResponseEntity<?> handleDuplicateNicknameException(DuplicateNicknameException e) {
+        log.error(e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiUtil.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateRatingException.class)
+    protected ResponseEntity<?> handleDuplicateRatingException(DuplicateRatingException e) {
         log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiUtil.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));

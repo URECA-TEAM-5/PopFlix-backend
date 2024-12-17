@@ -1,6 +1,8 @@
 package com.popflix.domain.movie.service.impl;
 
 import com.popflix.domain.movie.entity.Rating;
+import com.popflix.domain.movie.exception.DuplicateRatingException;
+import com.popflix.domain.movie.exception.MovieNotFoundException;
 import com.popflix.domain.movie.repository.MovieRepository;
 import com.popflix.domain.movie.repository.RatingRepository;
 import com.popflix.domain.user.repository.UserRepository;
@@ -23,7 +25,7 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public String addOrUpdateRating(Long userId, Long movieId, Integer score) {
         if (score < 1 || score > 5) {
-            throw new IllegalArgumentException("팝콘 지수는 1점에서 5점 사이로 가능합니다.");
+            throw new DuplicateRatingException("팝콘 지수는 1점에서 5점 사이로 가능합니다.");
         }
 
         // 1. 영화에 평점 상태 확인
@@ -35,7 +37,7 @@ public class RatingServiceImpl implements RatingService {
 
             // 일단 같은 점수일 경우 예외 추가(선택 사항)
             if (existingRating.getRating() == score) {
-                throw new IllegalArgumentException("같은 평점으로는 업데이트할 수 없습니다.");
+                throw new DuplicateRatingException("같은 평점으로는 업데이트할 수 없습니다.");
             }
 
             existingRating.updateRating(score);
