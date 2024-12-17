@@ -78,10 +78,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(UserNotFoundException::new);
 
-        // 성별이나 장르 정보가 없으면 추가 정보 입력 페이지로 리다이렉트
+        // 성별이나 장르 정보가 없으면 추가 정보 입력 페이지로, 그 외에는 welcome 페이지로 리다이렉트
         String targetUrl = (user.getGender() == null || user.getUserGenres().isEmpty()) ?
                 frontendUrl + "/AddUserInfo" :
-                frontendUrl;
+                frontendUrl + "/welcome";
 
         log.info("Frontend URL: {}", frontendUrl);
         log.info("User nickname: {}", user.getNickname());

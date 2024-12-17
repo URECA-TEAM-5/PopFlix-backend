@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfoDto {
+    private Long userId;
     private String email;
     private String name;
     private String nickname;
@@ -26,6 +27,7 @@ public class UserInfoDto {
 
     public static UserInfoDto from(User user) {
         return UserInfoDto.builder()
+                .userId(user.getUserId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .nickname(user.getNickname())
