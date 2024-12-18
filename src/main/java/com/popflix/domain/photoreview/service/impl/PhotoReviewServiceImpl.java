@@ -12,26 +12,29 @@ import com.popflix.domain.photoreview.entity.PhotoReviewLike;
 import com.popflix.domain.photoreview.exception.PhotoReviewLikeNotFoundException;
 import com.popflix.domain.photoreview.exception.PhotoReviewNotFoundException;
 import com.popflix.domain.photoreview.exception.UnauthorizedPhotoReviewAccessException;
+import com.popflix.domain.photoreview.repository.PhotoReviewCommentLikeRepository;
 import com.popflix.domain.photoreview.repository.PhotoReviewLikeRepository;
+import com.popflix.domain.photoreview.repository.PhotoReviewReplyLikeRepository;
 import com.popflix.domain.photoreview.repository.PhotoReviewRepository;
 import com.popflix.domain.photoreview.service.PhotoReviewService;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.repository.UserRepository;
 import com.popflix.global.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class PhotoReviewServiceImpl implements PhotoReviewService {
     private final PhotoReviewRepository photoReviewRepository;
     private final UserRepository userRepository;
@@ -39,17 +42,23 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     private final S3Service s3Service;
     private final PhotoReviewLikeRepository photoReviewLikeRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final PhotoReviewCommentLikeRepository commentLikeRepository;
+    private final PhotoReviewReplyLikeRepository replyLikeRepository;
 
     @Override
     @Transactional
     public PhotoReviewResponseDto createPhotoReview(PhotoReviewPostDto requestDto) {
+        log.info("포토리뷰 생성 시작: {}", requestDto);
         User user = userRepository.findById(requestDto.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(requestDto.getUserId()));
+        log.info("사용자 조회 완료: {}", user.getUserId());
 
         Movie movie = movieRepository.findById(requestDto.getMovieId())
                 .orElseThrow(() -> new MovieNotFoundException(requestDto.getMovieId()));
+        log.info("영화 조회 완료: {}", movie.getId());
 
         String imageUrl = s3Service.uploadImage(requestDto.getReviewImage());
+        log.info("이미지 업로드 완료: {}", imageUrl);
 
         PhotoReview photoReview = PhotoReview.builder()
                 .review(requestDto.getReview())
@@ -59,10 +68,20 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
                 .build();
 
         PhotoReview savedPhotoReview = photoReviewRepository.save(photoReview);
+        log.info("포토리뷰 저장 완료: {}", savedPhotoReview.getReviewId());
 
-        publishPhotoReviewCreatedEvent(savedPhotoReview);
+        try {
+            publishPhotoReviewCreatedEvent(savedPhotoReview);
+            log.info("이벤트 발행 완료");
+        } catch (Exception e) {
+            log.error("이벤트 발행 또는 이메일 전송 실패", e);
+            // 이메일 전송 실패해도 포토리뷰 생성은 성공으로 처리
+        }
 
-        return convertToPhotoReviewResponse(savedPhotoReview);
+        PhotoReviewResponseDto response = convertToPhotoReviewResponse(savedPhotoReview);
+        log.info("포토리뷰 응답 생성 완료: {}", response);
+
+        return response;
     }
 
     @Override
@@ -193,6 +212,43 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     }
 
     private PhotoReviewDetailResponseDto convertToPhotoReviewDetailResponse(PhotoReview photoReview) {
+        List<PhotoReviewCommentResponseDto> commentDtos = photoReview.getComments().stream()
+                .filter(comment -> !comment.getIsDeleted())
+                .map(comment -> {
+                    List<PhotoReviewReplyResponseDto> replyDtos = comment.getReplies().stream()
+                            .filter(reply -> !reply.getIsDeleted())
+                            .map(reply -> PhotoReviewReplyResponseDto.builder()
+                                    .replyId(reply.getReplyId())
+                                    .reply(reply.getReply())
+                                    .user(PhotoReviewReplyResponseDto.UserInfo.builder()
+                                            .userId(reply.getUser().getUserId())
+                                            .nickname(reply.getUser().getNickname())
+                                            .profileImageUrl(reply.getUser().getProfileImage())
+                                            .build())
+                                    .createdAt(reply.getCreateAt())
+                                    .likeCount(replyLikeRepository.countByReplyId(reply.getReplyId()))
+                                    .isLiked(false)
+                                    .isHidden(reply.getIsHidden())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return PhotoReviewCommentResponseDto.builder()
+                            .commentId(comment.getCommentId())
+                            .comment(comment.getComment())
+                            .user(PhotoReviewCommentResponseDto.UserInfo.builder()
+                                    .userId(comment.getUser().getUserId())
+                                    .nickname(comment.getUser().getNickname())
+                                    .profileImageUrl(comment.getUser().getProfileImage())
+                                    .build())
+                            .createdAt(comment.getCreateAt())
+                            .likeCount(commentLikeRepository.countByCommentId(comment.getCommentId()))
+                            .isLiked(false)
+                            .isHidden(comment.getIsHidden())
+                            .replies(replyDtos)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
         return PhotoReviewDetailResponseDto.builder()
                 .reviewId(photoReview.getReviewId())
                 .review(photoReview.getReview())
@@ -202,7 +258,17 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
                 .createdAt(photoReview.getCreateAt())
                 .updatedAt(photoReview.getUpdateAt())
                 .likeCount(photoReviewLikeRepository.countByReviewId(photoReview.getReviewId()))
+                .isLiked(false)
+                .comments(commentDtos)
                 .isHidden(photoReview.getIsHidden())
+                .build();
+    }
+
+    private PhotoReviewCommentResponseDto.UserInfo convertToCommentUserInfo(User user) {
+        return PhotoReviewCommentResponseDto.UserInfo.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 
@@ -230,7 +296,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         return PhotoReviewResponseDto.UserInfo.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .profileImage(user.getProfileImage())
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 
