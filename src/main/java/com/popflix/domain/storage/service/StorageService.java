@@ -24,7 +24,7 @@ public interface StorageService {
 
     void deleteStorage(Long storageId, Long userId);
 
-    void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, MultipartFile storageImage, Long userId) throws IOException;
+    void updateStorageDetails(Long storageId, String newName, String newOverview, MultipartFile storageImage, Long userId) throws IOException;
 
     List<GetMyStorageResponseDto> getStoragesByCreator(Long userId);
 
