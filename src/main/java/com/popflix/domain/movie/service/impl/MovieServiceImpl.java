@@ -119,8 +119,8 @@ public class MovieServiceImpl implements MovieService {
         Page<Movie> movies = movieRepository.findAllWithReleaseDateBeforeNow(sortedPageable);
 
         return movies.map(movie -> {
-            Double averageRating = calculateAverageRating(movie.getId());
-            Boolean isLiked = getIsLiked(userId, movie.getId());
+            Double averageRating = calculateAverageRating(movie.getId());// 추가 쿼리 발생!!!
+            Boolean isLiked = getIsLiked(userId, movie.getId()); // 추가 쿼리 발생!!!
             return GetMovieListResponseDto.from(movie, averageRating, isLiked);
         });
     }

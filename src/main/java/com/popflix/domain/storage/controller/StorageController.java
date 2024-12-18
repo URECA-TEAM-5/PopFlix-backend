@@ -64,10 +64,11 @@ public class StorageController {
     @PutMapping("/update/{storageId}")
     public ApiUtil.ApiSuccess<?> updateStorageDetails(
             @PathVariable Long storageId,
-            UpdateStorageRequestDto requestDto,
+            @RequestParam(value = "newName", required = false) String newName,
+            @RequestParam(value = "newOverview", required = false) String newOverview,
             @RequestPart(value = "storageImage", required = false) MultipartFile storageImage,
             @RequestParam Long userId) throws IOException {
-        storageService.updateStorageDetails(storageId, requestDto, storageImage, userId);
+        storageService.updateStorageDetails(storageId, newName, newOverview, storageImage, userId);
         return ApiUtil.success("보관함 정보가 수정되었습니다.");
     }
 

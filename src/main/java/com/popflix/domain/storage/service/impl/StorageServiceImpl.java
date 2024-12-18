@@ -90,7 +90,6 @@ public class StorageServiceImpl implements StorageService {
     // 보관함 목록 조회
     @Override
     public List<GetStorageResponseDto> getStorageList(Long currentUserId, String sort) {
-        // 정렬 기준에 따른 Sort 객체 생성
         Sort sorting;
         if ("popular".equalsIgnoreCase(sort)) {
             sorting = Sort.by(Sort.Direction.DESC, "likeCount");
@@ -100,14 +99,12 @@ public class StorageServiceImpl implements StorageService {
             throw new IllegalArgumentException("Invalid sort type: " + sort);
         }
 
-        // 로그인한 유저가 있다면 그 유저의 정보 가져오기
         boolean isUserLoggedIn = currentUserId != null;
         log.info("현재 사용자 로그인 여부!!!!!: " + currentUserId);
 
         List<Storage> storages;
         storages = storageRepository.findAll(sorting);
 
-        // 보관함 목록 변환
         return storages.stream()
                 .map(storage -> GetStorageResponseDto.builder()
                         .id(storage.getId())
@@ -229,7 +226,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Transactional
     @Override
-    public void updateStorageDetails(Long storageId, UpdateStorageRequestDto requestDto, MultipartFile storageImage, Long userId) throws IOException {
+    public void updateStorageDetails(Long storageId, String newName, String newOverview, MultipartFile storageImage, Long userId) throws IOException {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new StorageNotFoundException(storageId));
 
@@ -237,12 +234,12 @@ public class StorageServiceImpl implements StorageService {
             throw new AccessStorageDeniedException("해당 보관함을 수정할 권한이 없습니다.");
         }
 
-        if (requestDto.getNewName() != null && !requestDto.getNewName().isEmpty()) {
-            storage.changeStorageName(requestDto.getNewName());
+        if (newName != null && !newName.isEmpty()) {
+            storage.changeStorageName(newName);
         }
 
-        if (requestDto.getNewOverview() != null && !requestDto.getNewOverview().isEmpty()) {
-            storage.changeStorageOverview(requestDto.getNewOverview());
+        if (newOverview != null && !newOverview.isEmpty()) {
+            storage.changeStorageOverview(newOverview);
         }
 
         String storageImageUrl = null;
