@@ -14,6 +14,7 @@ import com.popflix.domain.review.exception.DuplicateReviewException;
 import com.popflix.domain.review.exception.ReviewLikeNotFoundException;
 import com.popflix.domain.review.exception.ReviewNotFoundException;
 import com.popflix.domain.review.exception.UnauthorizedReviewAccessException;
+import com.popflix.domain.review.repository.CommentLikeRepository;
 import com.popflix.domain.review.repository.ReviewLikeRepository;
 import com.popflix.domain.review.repository.ReviewRepository;
 import com.popflix.domain.review.service.ReviewService;
@@ -36,6 +37,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -192,7 +194,31 @@ public class ReviewServiceImpl implements ReviewService {
                 .createdAt(review.getCreateAt())
                 .updatedAt(review.getUpdateAt())
                 .likeCount(reviewLikeRepository.countByReviewId(review.getReviewId()))
+                .comments(review.getComments().stream()
+                        .filter(comment -> !comment.getIsDeleted())  // 삭제되지 않은 댓글만 포함
+                        .map(this::convertToCommentResponse)
+                        .collect(Collectors.toList()))
                 .isHidden(review.getIsHidden())
+                .build();
+    }
+
+    // CommentResponseDto 변환 메서드 추가
+    private CommentResponseDto convertToCommentResponse(Comment comment) {
+        return CommentResponseDto.builder()
+                .commentId(comment.getCommentId())
+                .comment(comment.getComment())
+                .user(convertToCommentUserInfo(comment.getUser()))
+                .createdAt(comment.getCreateAt())
+                .likeCount(commentLikeRepository.countByCommentId(comment.getCommentId()))
+                .isHidden(comment.getIsHidden())
+                .build();
+    }
+
+    private CommentResponseDto.UserInfo convertToCommentUserInfo(User user) {
+        return CommentResponseDto.UserInfo.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .profileImageUrl(user.getProfileImage())
                 .build();
     }
 

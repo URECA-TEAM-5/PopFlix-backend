@@ -4,6 +4,7 @@ import com.popflix.domain.photoreview.dto.*;
 import com.popflix.domain.photoreview.service.PhotoReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,13 +16,17 @@ import java.util.List;
 @RequestMapping("/api/photo-reviews")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class PhotoReviewController {
     private final PhotoReviewService photoReviewService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PhotoReviewResponseDto> createPhotoReview(
             @ModelAttribute PhotoReviewPostDto requestDto) {
-        return ResponseEntity.ok(photoReviewService.createPhotoReview(requestDto));
+        log.info("포토리뷰 생성 요청 받음: {}", requestDto);  // 요청 로깅
+        PhotoReviewResponseDto response = photoReviewService.createPhotoReview(requestDto);
+        log.info("포토리뷰 생성 완료: {}", response);  // 응답 로깅
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{reviewId}")

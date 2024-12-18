@@ -3,6 +3,7 @@ package com.popflix.auth.controller;
 import com.popflix.auth.dto.OAuthProviderInfo;
 import com.popflix.auth.dto.ProfileImage;
 import com.popflix.auth.token.TokenProvider;
+import com.popflix.auth.util.CookieUtil;
 import com.popflix.domain.user.dto.UserInfoDto;
 import com.popflix.domain.user.entity.User;
 import com.popflix.domain.user.service.UserService;
@@ -29,6 +30,7 @@ public class AuthController {
 
     private final TokenProvider tokenProvider;
     private final UserService userService;
+    private final CookieUtil cookieUtil;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -82,7 +84,8 @@ public class AuthController {
             tokenProvider.addToBlacklist(accessToken);
         }
 
-        deleteTokenCookies(response);
+        cookieUtil.deleteRefreshTokenCookie(response);
+
         return ResponseEntity.ok(ApiUtil.success("로그아웃 되었습니다."));
     }
 
