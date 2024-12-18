@@ -75,7 +75,7 @@ public class StorageController {
     @GetMapping
     public ApiUtil.ApiSuccess<?> getStorageList(
             @RequestParam(defaultValue = "newest") String sort, // default: 최신순
-            @AuthenticationPrincipal UserInfoDetails user // 현재 로그인한 유저 정보
+            @AuthenticationPrincipal UserInfoDetails user
     ) {
         Long currentUserId = (user != null) ? user.getId() : null; // 로그인 O: isliked 확인 가능 / 로그인 X: 전체 목록 조회 가능
 

@@ -24,9 +24,7 @@ public class Storage extends BaseSoftDeleteEntity {
 
     private String storageName;
 
-    @Lob
-    @Column(columnDefinition = "MEDIUMBLOB", nullable = true)
-    private byte[] storageImage;
+    private String storageImage;
 
     private Boolean isPublic;
 
@@ -49,7 +47,7 @@ public class Storage extends BaseSoftDeleteEntity {
 
 
     @Builder
-    public Storage(String storageName, byte[] storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages, List<StorageLike> storageLikes) {
+    public Storage(String storageName, String storageImage, Boolean isPublic, String storageOverview, Long likeCount, Long movieCount, User user, List<MovieStorage> movieStorages, List<StorageLike> storageLikes) {
         this.storageName = storageName;
         this.storageImage = storageImage;
         this.isPublic = isPublic;
@@ -99,9 +97,9 @@ public class Storage extends BaseSoftDeleteEntity {
         this.storageOverview = newOverview;
     }
 
-    public void updateStorageImage(byte[] multipartFile) {
-        if (multipartFile != null) {
-            this.storageImage = multipartFile;
+    public void updateStorageImage(String newStorageImage) {
+        if (newStorageImage != null) {
+            this.storageImage = newStorageImage;
         }
     }
 }

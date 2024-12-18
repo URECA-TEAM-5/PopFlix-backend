@@ -18,7 +18,7 @@ public class MonthlyTopStorageDto {
     private String storageOverview;
     private Long likeCount;
     private Long movieCount;
-    private byte[] storageImage;
+    private String storageImage;
     private List<GetMoviePosterResponseDto> movies; // 영화 목록 추가
 
     public MonthlyTopStorageDto(Storage storage, List<Movie> movies) {

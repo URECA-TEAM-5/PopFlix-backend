@@ -14,7 +14,7 @@ public class GetMyStorageResponseDto {
     private Long id;
     private String storageName;
     private Boolean isPublic;
-    private byte[] storageImage;
+    private String storageImage;
     private String overview;
     private Long likeCount;
     private Long movieCount;

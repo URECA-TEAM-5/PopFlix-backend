@@ -11,7 +11,7 @@ public class CreateStorageRequestDto {
     private  Long storageId;
     private String storageName;
     private String storageOverview;
-    private byte[] storageImage;
+    private String storageImage;
     private Long userId;
 
     public static CreateStorageRequestDto from(final Storage storage) {

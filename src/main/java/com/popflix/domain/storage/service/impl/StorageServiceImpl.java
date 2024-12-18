@@ -1,5 +1,8 @@
 package com.popflix.domain.storage.service.impl;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.popflix.domain.movie.dto.AddMovieRequestDto;
 import com.popflix.domain.movie.entity.Movie;
 import com.popflix.domain.movie.exception.MovieNotFoundException;
@@ -21,6 +24,7 @@ import com.popflix.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,6 +45,10 @@ public class StorageServiceImpl implements StorageService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
     private final MovieStorageRepository movieStorageRepository;
+    private final AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     // 보관함 생성
     @Transactional
@@ -236,14 +245,39 @@ public class StorageServiceImpl implements StorageService {
             storage.changeStorageOverview(requestDto.getNewOverview());
         }
 
-        if (storageImage != null) {
-            byte[] byteStorageImage = storageImage.getBytes();
-            storage.updateStorageImage(byteStorageImage);
+        String storageImageUrl = null;
+        if (storageImage != null && !storageImage.isEmpty()) {
+            // Storage 이미지 업로드 처리
+            storageImageUrl = uploadStorageImage(storageImage, storageId); // 파일 업로드 후 URL 반환
         }
+
+        storage.updateStorageImage(storageImageUrl);
 
         storageRepository.save(storage);
     }
 
+    private String uploadStorageImage(MultipartFile file, Long storageId) {
+        try {
+            // S3에 저장될 파일 경로 생성
+            String fileName = "storage/" + storageId + "/" +
+                    UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+            // 파일 메타데이터 설정
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
+
+            // S3에 파일 업로드
+            amazonS3.putObject(new PutObjectRequest(
+                    bucket, fileName, file.getInputStream(), metadata
+            ));
+
+            // 업로드된 파일의 URL 반환
+            return amazonS3.getUrl(bucket, fileName).toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Storage 이미지 업로드에 실패했습니다.", e);
+        }
+    }
     // 내가 만든 보관함 목록 조회
     @Override
     public List<GetMyStorageResponseDto> getStoragesByCreator(Long userId) {
