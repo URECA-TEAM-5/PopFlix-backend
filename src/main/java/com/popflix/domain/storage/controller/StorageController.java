@@ -64,7 +64,7 @@ public class StorageController {
     @PutMapping("/update/{storageId}")
     public ApiUtil.ApiSuccess<?> updateStorageDetails(
             @PathVariable Long storageId,
-            @RequestBody UpdateStorageRequestDto requestDto,
+            UpdateStorageRequestDto requestDto,
             @RequestPart(value = "storageImage", required = false) MultipartFile storageImage,
             @RequestParam Long userId) throws IOException {
         storageService.updateStorageDetails(storageId, requestDto, storageImage, userId);

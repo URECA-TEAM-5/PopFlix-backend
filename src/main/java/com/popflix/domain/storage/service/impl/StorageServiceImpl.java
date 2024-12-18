@@ -247,11 +247,12 @@ public class StorageServiceImpl implements StorageService {
 
         String storageImageUrl = null;
         if (storageImage != null && !storageImage.isEmpty()) {
-            // Storage 이미지 업로드 처리
-            storageImageUrl = uploadStorageImage(storageImage, storageId); // 파일 업로드 후 URL 반환
+            storageImageUrl = uploadStorageImage(storageImage, storageId);
         }
 
-        storage.updateStorageImage(storageImageUrl);
+        if (storageImageUrl != null) {
+            storage.updateStorageImage(storageImageUrl);
+        }
 
         storageRepository.save(storage);
     }
@@ -278,6 +279,7 @@ public class StorageServiceImpl implements StorageService {
             throw new RuntimeException("Storage 이미지 업로드에 실패했습니다.", e);
         }
     }
+
     // 내가 만든 보관함 목록 조회
     @Override
     public List<GetMyStorageResponseDto> getStoragesByCreator(Long userId) {
