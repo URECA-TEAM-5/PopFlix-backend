@@ -64,6 +64,8 @@ public class MovieServiceImpl implements MovieService {
 
             Long likeCount = movie.getLikeCount();
 
+            String posterPath = movie.getPosterPath();
+
             List<SimpleDto> cast = movie.getMovieCasts()
                     .stream()
                     .map(movieCast -> SimpleDto.fromCast(movieCast.getCast()))
@@ -80,7 +82,7 @@ public class MovieServiceImpl implements MovieService {
                     .toList();
 
             return GetSearchResultResponseDto.from(
-                    movie, averageRating, isLiked, likeCount, cast, directors, genres);
+                    movie, averageRating, isLiked, likeCount, posterPath, cast, directors, genres);
         });
     }
 

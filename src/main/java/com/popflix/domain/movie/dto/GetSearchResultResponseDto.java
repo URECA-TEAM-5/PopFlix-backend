@@ -35,12 +35,16 @@ public class GetSearchResultResponseDto {
     @JsonProperty("like_count")
     private Long likeCount;
 
+    @JsonProperty("poster_path")
+    private String posterPath;
+
     @Builder
     public static GetSearchResultResponseDto from(
             Movie movie,
             Double averageRating,
             Boolean likedByUser,
             Long likeCount,
+            String posterPath,
             List<SimpleDto> cast,
             List<SimpleDto> directors,
             List<SimpleDto> genres) {
@@ -54,6 +58,7 @@ public class GetSearchResultResponseDto {
                 .popcornAverageScore(averageRating)
                 .likedByUser(likedByUser)
                 .likeCount(likeCount)
+                .posterPath(posterPath)
                 .build();
     }
 }
