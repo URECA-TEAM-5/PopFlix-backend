@@ -1,5 +1,7 @@
 package com.popflix.domain.photoreview.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.popflix.domain.photoreview.dto.*;
 import com.popflix.domain.photoreview.service.PhotoReviewService;
 import jakarta.validation.Valid;
@@ -9,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,14 +22,27 @@ import java.util.List;
 @Slf4j
 public class PhotoReviewController {
     private final PhotoReviewService photoReviewService;
+    private final ObjectMapper objectMapper;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PhotoReviewResponseDto> createPhotoReview(
-            @ModelAttribute PhotoReviewPostDto requestDto) {
-        log.info("포토리뷰 생성 요청 받음: {}", requestDto);  // 요청 로깅
-        PhotoReviewResponseDto response = photoReviewService.createPhotoReview(requestDto);
-        log.info("포토리뷰 생성 완료: {}", response);  // 응답 로깅
-        return ResponseEntity.ok(response);
+    @PostMapping
+    public ResponseEntity<?> createPhotoReview(
+            @RequestPart("data") String dataString,
+            @RequestPart(value = "reviewImage", required = true) MultipartFile reviewImage) {
+        log.info("포토리뷰 생성 요청 - 데이터: {}", dataString);
+        log.info("포토리뷰 생성 요청 - 이미지 파일명: {}", reviewImage.getOriginalFilename());
+
+        try {
+            PhotoReviewPostDto requestDto = objectMapper.readValue(dataString, PhotoReviewPostDto.class);
+            requestDto.setReviewImage(reviewImage);
+
+            PhotoReviewResponseDto response = photoReviewService.createPhotoReview(requestDto);
+            log.info("포토리뷰 생성 완료 - ID: {}", response.getReviewId());
+
+            return ResponseEntity.ok(response);
+        } catch (JsonProcessingException e) {
+            log.error("포토리뷰 생성 실패 - JSON 파싱 에러: {}", e.getMessage());
+            throw new RuntimeException("잘못된 요청 데이터 형식입니다", e);
+        }
     }
 
     @GetMapping("/{reviewId}")

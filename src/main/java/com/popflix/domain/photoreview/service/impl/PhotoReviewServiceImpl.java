@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,13 +71,16 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         PhotoReview savedPhotoReview = photoReviewRepository.save(photoReview);
         log.info("포토리뷰 저장 완료: {}", savedPhotoReview.getReviewId());
 
-        try {
-            publishPhotoReviewCreatedEvent(savedPhotoReview);
-            log.info("이벤트 발행 완료");
-        } catch (Exception e) {
-            log.error("이벤트 발행 또는 이메일 전송 실패", e);
-            // 이메일 전송 실패해도 포토리뷰 생성은 성공으로 처리
-        }
+        // 이벤트 발행을 트랜잭션과 분리
+        CompletableFuture.runAsync(() -> {
+            try {
+                publishPhotoReviewCreatedEvent(savedPhotoReview);
+                log.info("이벤트 발행 완료");
+            } catch (Exception e) {
+                log.error("이벤트 발행 실패", e);
+                // 이벤트 발행 실패를 무시하고 계속 진행
+            }
+        });
 
         PhotoReviewResponseDto response = convertToPhotoReviewResponse(savedPhotoReview);
         log.info("포토리뷰 응답 생성 완료: {}", response);
